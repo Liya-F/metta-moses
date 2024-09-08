@@ -1,3 +1,4 @@
+ ;a function to return the top element ofan expression
 (= (returnTop $exp)
     (case $exp
         (
@@ -8,11 +9,15 @@
         )
 )
 )
+
+ ;a function to add a tree edge to the atomspace
 (= (addEdge $treeName $parentId $parentValue $parentConstraint $parentGuardSet $childId $childValue $childConstraint)
     (let $tree $treeName
         (add-atom &self (= ($tree) (Tree $parentId $parentValue $parentConstraint $parentGuardSet (Tree $childId $childValue $childConstraint))))
     )
 )
+
+ ;a function to build a non-deterministic tree from a given expression
 (= (buildTree $treeName $exp $start)
     (let*
         (
@@ -70,6 +75,7 @@
 
 )
 )
+ ;testcases
  ;! (buildTree x (AND A (OR A B)) 0)
  ;! (buildTree x (AND (AND A B) (OR A B)) 0)
  ;! (buildTree x (NOT A) 0)

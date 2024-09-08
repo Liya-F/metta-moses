@@ -5,22 +5,28 @@
 (list y 2)
 (list y 3)
 (list y 4)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;a function to append an element to a list
 (= (append $list-name $x) (
         add-atom &self (list $list-name $x)
     ))
-! (append x 9)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (append x 9)
+
+ ;a function to return thenon-deterministic tree
 (= (return-list $list-name) (
         match &self (list $list-name $y) $y
     ))
-! (return-list x)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (return-list x)
+
+ ;a function to search and return an element
 (= (search $list-name $x) (
         match &self (list $list-name $x) $x
     ))
-! (search x 3)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (search x 3)
+
+ ;a function to return the intersection of lists
 (= (intersect $list-name1 $list-name2 $intersectionList) (
         match &self (list $list-name1 $x) (
             match &self (list $list-name2 $y) (
@@ -28,23 +34,28 @@
             )
     )
 ))
+ ;testcase
+ ;! (intersect x y w)
+ ;! (return-list w)
 
-! (intersect x y w)
-! (return-list w)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;a function to find and remove an element
 (= (find-and-remove $list-name $val) (
         remove-atom &self (list $list-name $val)
     ))
-! (find-and-remove x 2)
-! (return-list x)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (find-and-remove x 2)
+ ;! (return-list x)
+
+ ;a function to find and replace an element
 (= (find-and-replace $list-name $val $newVal) (
         (find-and-remove $list-name $val)
         (append $list-name $newVal)
     ))
-! (find-and-replace x 9 8)
-! (return-list x)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (find-and-replace x 9 8)
+ ;! (return-list x)
+
+ ;a function to return the union of two lists
 (= (listUnion $list-name1 $list-name2 $merged-list) (
         (listUnion-helper $list-name1 $merged-list)
         (listUnion-helper $list-name2 $merged-list)
@@ -54,23 +65,28 @@
             add-atom &self (list $merged-list $x)
         )
 ))
+ ;testcase
+ ;! (listUnion x y z)
+ ;! (return-list z)
 
-! (listUnion x y z)
-! (return-list z)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;a function to map over a list
 (= (double $x) (+ $x $x))
 (= (map $func $list-name) (
         match &self (list $list-name $x) ($func $x)
     ))
-! (map double x)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (map double x)
+
+ ;a function to check if an element is found in a list
 (= (exists-in-list $x $list-name) (
         match &self (list $list-name $y) (
             if (== $x $y) True _
         )
 ))
-! (exists-in-list 3 x)
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (exists-in-list 3 x)
+
+ ;a function to check if an element is member of a tuple
 (= (is-member $x $collapse)
     (if (== $collapse ()) False
         (let*
@@ -84,8 +100,10 @@
 )
 )
 )
-! (is-member 8 (1 5 3))
- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;testcase
+ ;! (is-member 8 (1 5 3))
+
+ ;a function to remove duplicates from a tuple
 (= (remove-duplicates $tuple)
     (if (== $tuple ()) ()
         (let*
@@ -106,5 +124,6 @@
 )
 )
 )
-! (remove-duplicates (1 2 3 4 4 5) )
-! (return-list NoDuplicatesList)
+ ;testcase
+ ;! (remove-duplicates (1 2 3 4 4 5) )
+ ;! (return-list NoDuplicatesList)
