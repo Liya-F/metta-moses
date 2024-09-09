@@ -21,3 +21,11 @@
 )
 )
 )
+
+! (check-negation (and $a $b))
+! (check-negation (and (or $a $b) (or $a $b)))
+! (check-negation (and (not a) (not b)))
+
+! (check-negation (not (and a b)))
+! (check-negation (not (and (not a) (not (or b c)))))
+! (check-negation (not (and (not a) (not (or b c)))))
