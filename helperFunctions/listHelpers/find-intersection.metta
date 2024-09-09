@@ -2,22 +2,25 @@
 (= (member $x $y)
     (case $y
         (
-            ( (:: $h $t) (if (== $x $h) True (member $x $t)))
+            ( (Cons $h $t) (if (== $x $h) True (member $x $t)))
             ( () False)
         )
 )
 )
-! (member 2 (:: 2 (:: 7 (:: 3 ())))) ;True
-! (member 4 (:: 2 (:: 7 (:: 3 ())))) ;False
+! (member 2 (Cons 2 (Cons 7 (Cons 3 ())))) ;True
+! (member 4 (Cons 2 (Cons 7 (Cons 3 ())))) ;False
 
  ;function to return the intersection of two lists
 (= (find-intersection $lst1 $lst2)
     (case $lst1
         (
-            ( (:: $h $t) (if (member $h $lst2) (:: $h (find-intersection $t $lst2)) (find-intersection $t $lst2)) )
+            ( (Cons $h $t)
+                (if (member $h $lst2)
+                    (Cons $h (find-intersection $t $lst2))
+                    (find-intersection $t $lst2)) )
             ( () () )
         )
 )
 )
- ; Compute their intersection
-! (find-intersection (:: Hi (:: 4 (:: Hello (:: 2 (:: 9 ()))))) (:: 1 (:: 4 (:: Hi (:: hello (:: 7 ()))))))
+
+! (find-intersection (Cons 1 (Cons 4 (Cons Hello (Cons 2 (Cons 9 ()))))) (Cons 1 (Cons 4 (Cons Hi (Cons hello (Cons 7 ()))))))
