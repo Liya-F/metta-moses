@@ -1,0 +1,20 @@
+(= (applyOrCut $child $current)
+    (case ($child $current)
+        (
+            ( ( (TreeNode $nodeValueCh $guardSetCh $listOfChildrenCh) (TreeNode $nodeValueCr $guardSetCr $listOfChildrenCr))
+                (if (== (length $listOfChildrenCh) 1)
+                    (case $listOfChildrenCh
+                        (
+                            ( (Cons (TreeNode $nodeValueGr $guardSetGr $listOfChildrenGr) Nil)
+                                (TreeNode $nodeValueCr (setUnion $guardSetCr $guardSetGr) (findAndRemoveTree (TreeNode $nodeValueGr $guardSetGr $listOfChildrenGr) (extend $listOfChildrenGr $listOfChildrenCr)))
+                            )
+                        ($else ())
+                    )
+            )
+        (TreeNode $nodeValueCr $guardSetCr $listOfChildrenCr)
+    )
+)
+($else ())
+)
+)
+)
