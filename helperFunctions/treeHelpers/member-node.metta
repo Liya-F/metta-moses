@@ -18,3 +18,7 @@
     )
 )
 )
+ ;testcase
+! (member-node (TreeNode (Value b False NOT) Nil
+        Node NilNode NilList NilList) (Cons (TreeNode (Value Nil False AND) (TreeNode (Value a False NOT) NilNode NilNode NilList NilList) (TreeNode (Value b False NOT) Nil
+                Node NilNode NilList NilList) NilList NilList) ()))
