@@ -19,3 +19,5 @@
         )
 )
 )
+ ; Compute their intersection
+! (find-intersection (:: Hi (:: 4 (:: Hello (:: 2 (:: 9 ()))))) (:: 1 (:: 4 (:: Hi (:: hello (:: 7 ()))))))
