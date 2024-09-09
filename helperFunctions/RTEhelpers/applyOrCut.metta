@@ -18,3 +18,7 @@
 )
 )
 )
+
+ ;testcase
+! (applyOrCut (TreeNode (valueCh) (guardsetCh) (Cons (TreeNode (Value a False LITERAL) (Cons 1 (Cons 2 (Cons 1 Nil))) (Cons (TreeNode (Value b False LITERAL) Nil Nil) (Cons (TreeNode (Value c False LITERAL) Nil Nil) Nil))) Nil))
+    (TreeNode (valueCr) (Cons 4 (Cons 5 (Cons 1 Nil))) (Cons (TreeNode (Value a False LITERAL) (Cons 1 (Cons 2 (Cons 1 Nil))) (Cons (TreeNode (Value b False LITERAL) Nil Nil) (Cons (TreeNode (Value c False LITERAL) Nil Nil) Nil))) (Cons (TreeNode (Value c False LITERAL) Nil Nil) (Cons (TreeNode (Value d False LITERAL) Nil Nil) Nil)))))
