@@ -1,6 +1,7 @@
-! (register-module! ../../../metta-moses)
+!(register-module! ../../../metta-moses)
 
 ! (import! &self metta-moses:utilities:general-helpers)
+! (bind! &newSpace (new-space))
 
 !(assertEqualToResult (~= 1 2) (True))
 !(assertEqualToResult (~= 1 1) (False))
@@ -9,17 +10,17 @@
 !(assertEqualToResult (~= Something Something) (False))
 !(assertEqualToResult (~= Something something) (True))
 
-;;tests for the function 'concatTuple'
+;; Tests for the function 'concatTuple'
 !(assertEqualToResult (concatTuple () (3 4)) ((3 4)))
 !(assertEqualToResult (concatTuple (1 2) (3 4)) ((1 2 3 4)))
 !(assertEqualToResult (concatTuple (1 2) ()) ((1 2)))
 !(assertEqualToResult (concatTuple () ()) (()))
 
-; tests for the function 'Not' 
-  ! (assertEqualToResult (Not (Not (Not A))) ((NOT A)))
-  ! (assertEqualToResult (Not (Not A)) (A))
+;; Tests for the function 'Not'
+!(assertEqualToResult (Not (Not (Not A))) ((NOT A)))
+!(assertEqualToResult (Not (Not A)) (A))
 
-; tests for the function 'isMember'
+;; Tests for the function 'isMember'
 !(assertEqualToResult (isMember 1 ()) (False))
 !(assertEqualToResult (isMember 2 (2 3 4 5)) (True))
 !(assertEqualToResult (isMember 3 (1 2 4 5)) (False))
@@ -50,13 +51,6 @@
 ;; It will return True if greater than 10.
 (: greaterThanTen (-> Number Bool))
 (= (greaterThanTen $x) (> $x 10))
-
-;; It will return True if input is unit atom.
-(: isUnit (-> Atom Bool))
-(= (isUnit $x) (== $x ()))
-
-(: isSingleAtom (-> Atom Bool))
-(= (isSingleAtom $x) (if (== (get-metatype $x) Expression) (== (cdr-atom $x) ()) False))
 
 ;; It will decrement the input by 1.
 (: decrement (-> Number Number))
@@ -113,3 +107,25 @@
 !(assertEqual (map isSingleAtom (A B C (A C D) E)) (False False False False False))
 !(assertEqual (map greaterThanTen (1 10 2 23 32 7 8 43 0 2)) (False False False True True False False True False False))
 !(assertEqual (map greaterThanTen (1 10 2 23 32 7 8 43 0)) (False False False True True False False True False))
+
+
+
+;; Test for add list to space
+!(addListToSpace &newSpace (1 2 3 4 5))
+!(assertEqual (collapse (get-atoms &newSpace)) (1 2 3 4 5))
+!(addListToSpace &newSpace (6 7 8))
+!(assertEqual (collapse (get-atoms &newSpace)) (1 2 3 4 5 6 7 8))
+!(addListToSpace &newSpace (9 10))
+!(assertEqual (collapse (get-atoms &newSpace)) (1 2 3 4 5 6 7 8 9 10))
+
+;; Test for checking the all function.
+!(assertEqual (all (True True True True)) True)
+!(assertEqual (all (True True False True)) False)
+!(assertEqual (all (True True True False)) False)
+
+
+;; Test foldr function
+!(assertEqual (foldr + 0 (1 2 3)) 6)
+!(assertEqual (foldr + 0 (1 2 3)) 6)
+
+
