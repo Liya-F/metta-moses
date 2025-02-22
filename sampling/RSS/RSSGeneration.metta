@@ -30,7 +30,28 @@
       (() (collapse (match &program ($program $index $index $score) ($program $index $score))))
       ($programs $programs)
    ))
-   
+)
+
+;; Fitness based on closeness to program 2
+(=(fitness ($program $index) $targetIndex)
+   (let* (
+      ;; calculate the absolute difference between the program index and the target index (program 2)
+      ($distance (abs (- $index $targetIndex)))
+      ;; calculate the fitness score based on the distance
+      ($fitnessScore (/ 1 (+ 1 $distance)))
+   )
+   ;; return the program with its calculated fitness score
+   (program $index $fitnessScore)
+))
+
+;; Evaluates programs based on their closeness to the target program (program 2)
+(=(evaluate $population $dataset)
+   (case $population
+      ;; For each program in the population, calculate its fitness based on closeness to program 2
+      (((program $index) (fitness $index 2))
+      ;; Otherwise, process the whole population
+      ($population (collapse (fitness (superpose $population) 2)))
+   )
 )
 
 ;;params 
@@ -41,7 +62,7 @@
   (let* ( ( ()  (println! (------ $n Generation  ------)))
           ( ()  (println! (Random subset generated : $dataset)))
           ($programs (getPrograms $programs))
-          ($evaluated_programs (evaluate $programs $dataset))
+          ($evaluated_programs (evaluate $programs $dataset))  ;; This now uses our closeness-based fitness evaluation
           ( ()  (println! (programs evaluated : $evaluated_programs)))
           ($new_generaion (evolve $evaluated_programs))
           ( ()  (println! (programs generated : $new_generaion)))
