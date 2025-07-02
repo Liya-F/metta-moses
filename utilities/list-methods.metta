@@ -129,3 +129,139 @@
 (: List.tail (-> (List $a) (List $a)))
 (= (List.tail Nil) Nil)
 (= (List.tail (Cons $x $xs)) $xs)
+
+;; Subtract list element wise
+(: List.sub (-> (List Number) (List Number) (List Number)))
+(= (List.sub Nil Nil) Nil)
+(= (List.sub Nil (Cons $y $ys)) (Error (Cons $y $ys) LenghtOfListNotEqual))
+(= (List.sub (Cons $x $xs) Nil) (Error (Cons $x $xs) LenghtOfListsNotEqual))
+(= (List.sub (Cons $x $xs) (Cons $y $ys)) (Cons (- $x $y) (List.sub $xs $ys)))
+
+(: List.zip (-> (List $a) (List $b) (List ($a $b))))
+(= (List.zip Nil Nil) Nil)
+(= (List.zip Nil (Cons $y $ys)) Nil)
+(= (List.zip (Cons $x $xs) Nil) Nil)
+(= (List.zip (Cons $x $xs) (Cons $y $ys)) (Cons ($x $y) (List.zip $xs $ys)))
+
+(: List.zipWith (-> (-> $a $b $c) (List $a) (List $b) (List $c)))
+(= (List.zipWith $f Nil Nil) Nil)
+(= (List.zipWith $f Nil (Cons $y $ys)) Nil) (= (List.zipWith $f (Cons $x $xs) Nil) Nil) (= (List.zipWith $f (Cons $x $xs) (Cons $y $ys)) (Cons ($f $x $y) (List.zipWith $f $xs $ys)))
+
+(: List.drop (-> Number (List $a) (List $a)))
+(= (List.drop $n Nil) Nil)
+(= (List.drop $n (Cons $x $xs))
+   (if (== $n 0)
+       (Cons $x $xs)
+       (List.drop (- $n 1) $xs)))
+
+;; Temporary flatten function that works only for list of 
+;;  lists where the second list has only single elements.
+(: List.flatten (-> (List (List $a)) (List $a)))
+(= (List.flatten Nil) Nil)
+(= (List.flatten (Cons $x $xs))
+    (case $x
+       (
+         ((Cons $y Nil) (Cons $y (List.flatten $xs)))
+         ((Cons $y $ys) (Error $x "Can't be flattened")))))
+
+(: List.repeat (-> Number $a (List $a)))
+(= (List.repeat $n $a)
+   (if (== $n 0)
+       Nil
+       (Cons $a (List.repeat (- $n 1) $a))))
+
+;; Concatenates two lists into a single list, preserving element order.
+;; Params:
+;;   $list1: First list to concatenate.
+;;   $list2: Second list to concatenate.
+;; Returns:
+;;   (List $a) - New list containing all elements of $list1 followed by $list2.
+(: List.concat (-> (List $a) (List $a) (List $a)))
+(= (List.concat Nil $list2) $list2)
+(= (List.concat (Cons $head $tail) $list2)
+   (Cons $head (List.concat $tail $list2)))
+
+;; Removes the element at the specified index from the list.
+;; Params:
+;;   $list: Input list.
+;;   $idx: Non-negative index of element to remove (0-based).
+;; Returns:
+;;   (List $a) - New list with element at $idx removed, or original list if $idx is invalid.
+(: List.removeAtIdx (-> (List $a) Number (List $a)))
+(= (List.removeAtIdx Nil $idx) Nil)
+(= (List.removeAtIdx (Cons $head $tail) $idx)
+   (if (< $idx 0) (Cons $head $tail)
+       (if (== $idx 0) $tail
+           (Cons $head (List.removeAtIdx $tail (- $idx 1))))))
+
+;; Checks if an element exists in a list.
+;; Params:
+;;   $elem: Element to search for.
+;;   $list: Input list to search in.
+;; Returns:
+;;   Bool - True if $elem is found in $list, False otherwise.
+(: List.isMember (-> $a (List $a) Bool))
+(= (List.isMember $elem Nil) False)
+(= (List.isMember $elem (Cons $head $tail))
+   (if (== $elem $head) True
+       (List.isMember $elem $tail)))
+
+;; List.partialSort -- sorts the top n values in a list and leaves the rest unsorted      
+(: List.partialSort (-> (-> $a $a Bool) (List $a) Number (List $a) (List $a)))
+(= (List.partialSort $comparator (Cons $x $xs) $n $acc)
+    (let* (($max (List.max $comparator (Cons $x $xs)))
+            ($unsortedList (List.delete $max (Cons $x $xs)))
+            ($sortedList (List.append $max $acc)))
+                
+                (if (== (- $n 1) 0)
+                    (List.appendList $unsortedList $sortedList)
+                    (List.partialSort $comparator $unsortedList (- $n 1) $sortedList))))
+
+;; Overloading the above partialSort for partial Sorting list of numbers -- decreasing order
+(: List.partialSort (-> (List Number) Number (List Number) (List Number)))
+(= (List.partialSort $list $n $acc) (List.partialSort >= $list $n $acc))          
+
+;; append a list to a list
+(: List.appendList (-> (List $a) (List $a) (List $a)))
+(= (List.appendList $a (Cons $x $xs))
+    (if (== $xs Nil)
+        (Cons $x $a)
+        (Cons $x (List.appendList $a $xs))))   
+
+;; deletes the first occurence of an item in the list
+(: (List.delete (-> $a (List $a) (List $a))))
+(= (List.delete $a Nil) (Error Nil "empty list"))
+(= (List.delete $a (Cons $x $xs))
+    (if (== $x $a)
+        $xs
+        (Cons $x (List.delete $a $xs))))        
+
+;; List.takeN -- takes the first N members of a list 
+(: List.takeN (-> Number (List $a) (List $a)))
+(= (List.takeN $n Nil) Nil)
+(= (List.takeN $n (Cons $x $xs)) 
+    (if (== $n 0)
+        Nil
+        (let $t (List.takeN (- $n 1) $xs) (Cons $x $t))))
+
+;; List.takeNFrom -- takes N members starting from given start position position 
+(: List.takeNFrom (-> Number Number (List $a) (List $a)))
+(= (List.takeNFrom $start $n Nil) Nil)
+(= (List.takeNFrom $start $n (Cons $x $xs))
+    (if (== $n 0)
+        Nil
+        (if (== $start 0)
+            (List.takeN $n (Cons $x $xs))
+            (List.takeNFrom (- $start 1) $n $xs))))
+
+;; Returns True if any element in the list is True, otherwise False.
+(: List.any (-> (List Bool) Bool))
+(= (List.any Nil) False)
+(= (List.any (Cons True $xs)) True)
+(= (List.any (Cons False $xs)) (List.any $xs))
+
+;; Generates a list of a given length containing a specified number repeated. 
+(: List.generate (-> Number Number (List Number))) 
+(= (List.generate $length $element) 
+(if (> $length 0) 
+    (Cons $element (List.generate (- $length 1) $element)) Nil))

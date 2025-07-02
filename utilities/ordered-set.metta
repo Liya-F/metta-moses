@@ -51,3 +51,37 @@
     (if (== $x $el)
         True
         (OS.contains $xs $el)))
+
+;; removeByIdx
+(OS.removeByIdx (-> (OS $a) Number (OS $a)))
+(= (OS.removeByIdx NilOS $index) (Error NilOS INDEX_ERROR))
+(= (OS.removeByIdx (ConsOS $x $xs) $index)
+    (if (== $index 0)
+        $xs
+        (ConsOS $x (OS.removeByIdx $xs (- $index 1)))))
+
+;; Check if an Exemplar is a member of an ordered set
+;; Params:
+;;   $exemplar: Exemplar to check
+;;   $os: Ordered set (OS Exemplar)
+;; Returns:
+;;   Bool - True if $exemplar is in $os, False otherwise
+(: OS.isMember (-> (Exemplar $a) (OS (Exemplar $a)) Bool))
+(= (OS.isMember $exemplar NilOS) False)
+(= (OS.isMember $exemplar (ConsOS $x $xs))
+   (if (== $exemplar $x)
+       True
+       (OS.isMember $exemplar $xs)))
+
+; Retrieves the first N elements from an ordered set.
+; Params:
+;   $n: Number of elements to return.
+;   $os: Ordered set of exemplars.
+; Return: Ordered set containing the first N elements, or all elements if N exceeds the set size.
+(: OS.getTopN (-> Number (OS (Exemplar $a)) (OS (Exemplar $a)))) 
+(= (OS.getTopN $n NilOS) NilOS) 
+(= (OS.getTopN 0 $os) NilOS) 
+(= (OS.getTopN $n (ConsOS $x $xs)) 
+   (if (<= $n 1) 
+       (ConsOS $x NilOS) 
+       (ConsOS $x (OS.getTopN (- $n 1) $xs))))

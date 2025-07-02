@@ -9,7 +9,7 @@
 
 ;Function to cocatinate two tuples (A B) (C D) ==> (A B C D)
 ;; (: concatTuple (-> Expression Expression Expression))
- (= (concatTuple $x $y) (collapse (union (superpose $x) (superpose $y)))) ;; FIX: No longer working on version 0.2.3
+(= (concatTuple $x $y) (union-atom $x $y)) ;; This should work when run after activating the virtual env
 (: ++ (-> Expression Expression Expression))
 (= (++ $x $y)
    (case ((isSymbol $x) (isSymbol $y))
@@ -153,6 +153,10 @@
 ;; A trick to define `curry` in MeTTa without `lambda`
 (: curry (-> (-> $a $b $c) (-> $a (-> $b $c))))
 (= (((curry $f) $x) $y) ($f $x $y))
+
+;; A trick to define `curry2` in MeTTa without `lambda`
+(: curry2 (-> (-> $a $b $c $d) (-> $a (-> $b $c $d))))
+(= (((curry2 $f) $x) $y $z) ($f $x $y $z))
 
 ; ;; Add numbers in an atom list
 (= (sum $list) (foldr + 0 $list))
@@ -335,6 +339,34 @@
                 ;; (() (println! (From sort Left: $left Right: $right)))
              )
              (merge (sort $left $halfL $key) (sort $right (- $len $halfL) $key) $key))))
+
+;; function to partially sort the smallest $n Atoms from an expression
+(: selectionSort (-> Expression Number Expression))
+(= (selectionSort $list $n) (selectionSort $list $n <))
+(: selectionSort (-> Expression Number (-> $a $a Bool) Expression))
+(= (selectionSort $list $n $op)
+    (if (or (== $n 0) (== $list ()))
+        $list
+     (let* (
+        ($initial (car-atom $list))
+        ($cur (selector $list $initial $op))
+        ($newList (subtraction-atom $list ($cur)))
+        ($rest (selectionSort $newList (- $n 1) $op))
+    )
+    (cons-atom $cur $rest)
+    )))
+
+;; Helper function that compare two Atoms based on $op and return the one
+(: comparator (-> $a $a (-> $a $a Bool) $a))
+(= (comparator $x $y $op) (if ($op $x $y) $x $y))
+
+;; Helper function that select one atom from the $expr based on the comparation function $op
+(: selector (-> Expression (-> $a $a Bool) $a))
+(= (selector $expr $op) (selector $expr (car-atom $expr) $op) )
+(: selector (-> Expression $a (-> $a $a Bool) $a))
+(= (selector $expr $i $op) 
+    (foldl-atom $expr $i $x $acc (comparator $x $acc $op))
+)
 
 ;; A function to take an atom and repeat it n times.
 (: repeat (-> Atom Number Atom))
@@ -580,6 +612,18 @@
 (: (-> unionAtom (-> Expression Expression Expression)))
 (= (unionAtom $x $y) (union-atom $x $y))
 
+
+;; helper function to generate list of numbers ranging from 0 to n
+(: genList (-> Number Expression))
+(= (genList $u) (genList 0 $u))
+
+(: genList (-> Number Number Expression))
+(= (genList $l $u)
+    (if (< $u $l)
+        ()
+        (let $res (genList $l (- $u 1))
+            (cons-atom $u $res) )))
+
 ;; swap AND , OR 
 (: swapAndOr (-> Atom Atom))
 (= (swapAndOr $op)
@@ -589,3 +633,16 @@
          ($else $op))
     )
 )
+
+(: compose (-> (-> $b $c) (-> $a $b) (-> $a $c)))
+(= ((compose $g $f) $x) ($g ($f $x)))
+
+;; approximate equality -- takes the relative magnitude of the numbers into consideration
+! (bind! EPSILON (pow-math 10 -6))
+(: isApproxEq (-> Number Number Bool))
+(= (isApproxEq $x $y)
+    (let $diff (abs-math (- $x $y))
+        (if (< $diff EPSILON)
+            True
+            (let $amp (abs-math (+ $x $y))
+                (<= $diff (* EPSILON $amp))))))

@@ -13,11 +13,11 @@
 !(assertEqualToResult (~= Something Something) (False))
 !(assertEqualToResult (~= Something something) (True))
 
-;; ;; Tests for the function 'concatTuple' ;; FIX: Failing Test case
-;; !(assertEqualToResult (concatTuple () (3 4)) ((3 4)))
-;; !(assertEqualToResult (concatTuple (1 2) (3 4)) ((1 2 3 4)))
-;; !(assertEqualToResult (concatTuple (1 2) ()) ((1 2)))
-;; !(assertEqualToResult (concatTuple () ()) (()))
+;; ;; Tests for the function 'concatTuple' ;; FIXED failing tests
+!(assertEqualToResult (concatTuple () (3 4)) ((3 4)))
+!(assertEqualToResult (concatTuple (1 2) (3 4)) ((1 2 3 4)))
+!(assertEqualToResult (concatTuple (1 2) ()) ((1 2)))
+!(assertEqualToResult (concatTuple () ()) (()))
 
 ;; Tests for the function 'Not'
 !(assertEqualToResult (Not (Not (Not A))) ((NOT A)))
@@ -127,6 +127,17 @@
 ;; Test curry function
 !(assertEqual (((curry +) 1) 2) 3)
 !(assertEqual (((curry -) 5) 4) 1)
+
+;; Test case for curry 2 function
+(: addThree (-> Number Number Number Number))
+(= (addThree $x $y $z) (+ $x (+ $y $z)))
+
+!(assertEqual (get-type ((curry2 addThree) 1)) (-> Number Number Number))
+!(assertEqual (get-type (((curry2 addThree) 1) 2 3)) Number)
+!(assertEqual (((curry2 addThree) 1) 2 3) 6)
+
+!(assertEqual (get-type ((curry ((curry2 addThree) 1)) 2)) (-> Number Number))
+!(assertEqual (((curry ((curry2 addThree) 1)) 2) 3) 6)
 
 ;; ;; Test filter function ;; FIX: Failing Test case
 ;; !(assertEqual (collapse (filter isUnit (9 10 () 5 4 ()))) (() ()))
@@ -350,3 +361,69 @@ NilMMap discSpec<=)
 !(assertEqual (swapAndOr AND) OR)
 !(assertEqual (swapAndOr OR) AND)
 !(assertEqual (swapAndOr A) A)
+
+;; Test for compose function
+(: inc (-> Number Number) )
+(= (inc $x) (+ $x 1))
+
+(: dec (-> Number Number) )
+(= (dec $x) (- $x 1))
+
+!(assertEqual ((compose inc dec) 1) 1)
+!(assertEqual ((compose (compose inc dec) (compose inc inc)) 1) 3)
+!(assertEqual ((compose (compose inc dec) inc) 1) 2)
+!(assertEqual ((compose not isZero) 1) True)
+
+;; Test cases -- Aproximate equality
+!(assertEqual (isApproxEq 0.0000005 0.0000006) True)
+!(assertEqual (isApproxEq 1.0000005 1.0000006) True)
+!(assertEqual (isApproxEq 1000000.1 1000000.2) True)
+!(assertEqual (isApproxEq 1.0 1.1) False)
+
+;; custom comparison functions for selectionSort
+
+;; Function that compares the size of the two inputes and return True if the first is greater false otherwise
+(: bySize Expression Expression Bool)
+(= (bySize $x $y) 
+    (let* (
+        ($xLen (size-atom $x))
+        ($yLen (size-atom $y))
+    )
+    (> $xLen $yLen)
+))
+
+;; Function that compares the second element (which is number) of the two inputes and return True if the first is greater false otherwise
+(: bySecondAtom (-> ($a Number) ($b Number) Bool))
+(= (bySecondAtom $x $y) 
+    (let* (
+        ($xSecond (index-atom $x 1))
+        ($ySecond (index-atom $y 1))
+    )
+    (> $xSecond $ySecond)
+    ))
+
+;; Test cases -- bySize
+!(assertEqual (bySize (w) (1 1 1)) False)
+!(assertEqual (bySize (I c o g) (1 1 1)) True)
+
+;; Test cases -- bySecondAtom
+!(assertEqual (bySecondAtom (b 1) (a 2)) False) 
+!(assertEqual (bySecondAtom (b 10) (a 2)) True) 
+
+;; Test cases -- selectionSort
+!(assertEqual (selectionSort (5 2 9 1 73 2 3 9 8 34 25) 2) (1 2 5 9 73 2 3 9 8 34 25))
+!(assertEqual (selectionSort  (5 2 9 1 73 2 3 9 8 34 25) 3 >) (73 34 25 5 2 9 1 2 3 9 8))
+!(assertEqual (selectionSort (1 73 2 3 1 9 8 34 1 25 1) 4 <) (1 1 1 1 73 2 3 9 8 34 25))
+!(assertEqual (selectionSort () 2 >) ())
+!(assertEqual (selectionSort (1 2 3) 4 >) (3 2 1))
+
+;; Test cases -- selectionSort with non numeric expressions
+!(assertEqual (selectionSort ((a b) (a b c) (d) (m o s e s)) 1 bySize) ((m o s e s) (a b) (a b c) (d)))
+!(assertEqual (selectionSort ((a 1) (b 2) (d 10) (l 8)) 2 bySecondAtom) ((d 10) (l 8) (a 1) (b 2)))
+
+;; Test cases --  selector
+! (assertEqual (selector (11 20 3 4 32) 11 >) 32)
+! (assertEqual (selector (11 20 3 4 32) <) 3)
+! (assertEqual (selector ((a b) (a b c) (d) (m o s e s)) (a b) bySize) (m o s e s))
+! (assertEqual (selector ((a 1) (b 2) (d 10) (l 8)) (a 1) bySecondAtom) (d 10))
+
