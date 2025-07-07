@@ -14,13 +14,13 @@
         (let*
              (
                 ;; (() (println! ("tree" $tree)))
-                ($curId (union-atom $parentId ($childNum)))
+                ($curId (concatT $parentId ($childNum)))
                 ((mkTree (mkNode $node) $childern) $head)
                 ;; (() (println!( "curId: " $curId "node :"$node)))
                 ;; (() (println!( "head: " $head "tail :"$tail)))
                 (($tNew  $mNew) (if (isMember $node (AND OR NOT));;
                                 (buildLogical $tree (mkNodeId $curId) $MMap)
-                                (chain (INSERT_ABOVE $tree (mkNodeId $curId) (mkTree (mkNode $swapedOp) Nil)) $itree (addLogicalKnobs $itree (mkNodeId $curId) True $MMap))
+                                (chain (insertAbove $tree (mkNodeId $curId) (mkTree (mkNode $swapedOp) Nil)) $itree (addLogicalKnobs $itree (mkNodeId $curId) True $MMap))
                             ))
                 
                 ;; (() (println!("tail: " $tail)))
@@ -46,6 +46,7 @@
         (
             ((mkTree (mkNode $op) $childrens) $subtree) 
             ($swapped (swapAndOr $op))
+            (() (trace! "swaped:" $swapped)
             (($t1 $mp1) (addLogicalKnobs $tree (mkNodeId $nodeId) True $MMap))
             ;(() (println! ($t1 $mp1) ))
             (($updatedTree $updatedMMap) (siblingit $t1 $childrens (mkNodeId $nodeId) 1 $swapped $mp1 ))
@@ -55,4 +56,4 @@
         )
     )
   )
-)
+))
