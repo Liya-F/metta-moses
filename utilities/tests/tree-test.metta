@@ -173,6 +173,32 @@
           Nil))
       Nil)))
 
+;; Testcases for insertNodeAtPosition
+!(assertEqual
+  (insertNodeAtPosition 
+   (mkTree (mkNode AND)
+      (Cons (mkTree (mkNode A) Nil)
+        (Cons (mkTree (mkNode OR)
+                (Cons (mkTree (mkNode B) (Cons (mkTree (mkNode Z) Nil) Nil))
+                  (Cons (mkTree (mkNode C) Nil) Nil)))
+          (Cons (mkTree (mkNode A) Nil) Nil)))) 
+    (mkNodeId (2))
+    (mkNode C))
+  (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) (Cons (mkTree (mkNode C) (Cons (mkTree (mkNode OR) (Cons (mkTree (mkNode B) (Cons (mkTree (mkNode Z) Nil) Nil)) (Cons (mkTree (mkNode C) Nil) Nil))) Nil)) (Cons (mkTree (mkNode A) Nil) Nil)))))
+
+  !(assertEqual
+    (insertNodeAtPosition 
+   (mkTree (mkNode AND)
+      (Cons (mkTree (mkNode A) Nil)
+        (Cons (mkTree (mkNode OR)
+                (Cons (mkTree (mkNode B) (Cons (mkTree (mkNode Z) Nil) Nil))
+                  (Cons (mkTree (mkNode C) Nil) Nil)))
+          (Cons (mkTree (mkNode A) Nil) Nil)))) 
+    (mkNodeId (0))
+    (mkNode OR))
+   (mkTree (mkNode OR) (Cons (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) (Cons (mkTree (mkNode OR) (Cons (mkTree (mkNode B) (Cons (mkTree (mkNode Z) Nil) Nil)) (Cons (mkTree (mkNode C) Nil) Nil))) (Cons (mkTree (mkNode A) Nil) Nil)))) Nil))
+  )
+
 ;;Testcases for replaceNodeById
 !(assertEqual
   (replaceNodeById

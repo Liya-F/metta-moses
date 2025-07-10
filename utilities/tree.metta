@@ -138,6 +138,16 @@
    (mkTree $node (Cons $tree Nil))
 )
 
+(: insertNodeAtPosition (-> (Tree $a) NodeId (Node $n) (Tree $a)))
+(= (insertNodeAtPosition $tree (mkNodeId $id) $newNode)
+   (if (or (== $id ()) (== (mkNodeId $id) (mkNodeId (0))))
+       (mkTree $newNode (Cons $tree Nil))
+       (let* (
+               ($oldNode (getNodeById $tree (mkNodeId $id)))
+               ($newSubtree (mkTree $newNode (Cons $oldNode Nil)))
+             )
+             (replaceNodeById $tree (mkNodeId $id) $newSubtree))))
+
 ;; Replaces a subtree at a specific NodeId with a new subtree.
 ;; Params:
 ;;   $tree: - The tree to modify.
