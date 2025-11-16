@@ -1287,3 +1287,15 @@
         (car-atom (reverse (get-type $obj)))
     )
 )
+
+;; replicates MeTTaLog's union-atom builtin function, i.e., keeps one copy of items present in both lists
+(= (union-atom-set $a $b)
+   (if (= $b ())
+        $a
+        (let $b-new 
+            (collapse 
+                (let $bs (superpose $b) 
+                                    (if (is-member $bs $a)
+                                        (empty)
+                                        $bs))) 
+            (union-atom $a $b-new))))
