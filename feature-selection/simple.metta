@@ -28,9 +28,9 @@
 (= (selectorIterator $th $rowNum $oc (Cons $label $labels) $dataRows $counter $acc)
     (chain (eval (List.length (Cons $label $labels))) $list-len
         (if (== $list-len 1)                                                ;; this means we are at the output label
-             $acc     ;; result -- pair of score and column index for consistent formatting across different feature selection algorithms            (chain (Table.getColumn 0 $dataRows) $if                        ;; input feature taken from the table ,, always the first column
+             $acc                                                           ;; result -- pair of score and column index for consistent formatting across different feature selection algorithms
             (chain (Table.getColumn 0 $dataRows) $if
-            (chain (Table.pop 0 $dataRows) $rem-table                         ;; remove the first column -- better than carrying around the whole table
+            (chain (Table.pop 0 $dataRows) $rem-table                       ;; remove the first column -- better than carrying around the whole table
             (chain (mutualInformation $if $oc) $mi      
                 (chain (calculateConfidence (size-atom $if) (eval (List.length $dataRows)) 50.0) $confidence
                     (chain (* $mi $confidence) $actualScore
