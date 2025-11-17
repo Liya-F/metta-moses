@@ -30,7 +30,7 @@
 !(assertEqual (takeN 2 (True False True)) (True False))
 !(assertEqual (takeN 5 (True False)) (True False))
 !(assertEqual (takeN 3 ()) ())
-;; Test
+; ;; Test
 !(assertEqual (List.uniqueValuesCount Nil ()) ()) ;; ?? is this really what I expect? if the list is empty
 !(assertEqual (List.uniqueValuesCount (Cons True (Cons False (Cons True Nil))) ()) ((True 2) (False 1)))
 !(assertEqual (List.uniqueValuesCount (Cons False (Cons False (Cons True (Cons True (Cons True Nil))))) ()) ((False 2) (True 3)))
@@ -61,8 +61,8 @@
         (Cons (Cons False (Cons True Nil)) 
         (Cons (Cons True (Cons False Nil)) Nil)))
 
-; !(assertEqual (insertPair > (2 1) ((4 0) (1 3))) ((4 0) (2 1) (1 3)))                   ;; fist value is score and second one feature index
-; !(assertEqual (insertPair > (2 1) ((4 0) (2 4) (1 3))) ((4 0) (2 1) (2 4) (1 3)))       
+!(assertEqual (insertPair > (2 1) ((4 0) (1 3))) ((4 0) (2 1) (1 3)))                   ;; fist value is score and second one feature index
+!(assertEqual (insertPair > (2 1) ((4 0) (2 4) (1 3))) ((4 0) (2 1) (2 4) (1 3)))       
 
 !(assertEqual (marginalProbs 10 ((A 4) (B 6))) ((A 0.4) (B 0.6)))
 !(assertEqual (marginalProbs 5 ((X 5))) ((X 1)))
@@ -76,7 +76,6 @@
 !(assertEqual (mutualInformation (Cons A (Cons A (Cons A Nil))) (Cons X (Cons Y (Cons Z Nil)))) 0.0)
 !(assertEqual (mutualInformation (Cons A (Cons B (Cons C Nil))) (Cons X (Cons Y (Cons Z Nil)))) 1.585)
 
-;; XXXX
 !(assertEqual (insertPair > (2 1) ((4 0) (1 3))) ((4 0) (2 1) (1 3)))                   ;; fist value is score and second one feature index
 !(assertEqual (insertPair > (2 1) ((4 0) (2 4) (1 3))) ((4 0) (2 1) (2 4) (1 3)))       
 
@@ -116,8 +115,8 @@
 !(assertEqual (zipColumn (0 1 4) (table2)) (Cons (True True True) (Cons (True False True) (Cons (False True False) (Cons (False False False) Nil)))))
 !(assertEqual (zipColumn (2) (table2)) (Cons (False) (Cons (False) (Cons (False) (Cons (False) Nil))))) 
 
-!(assertEqual (logMath 2 8)  3)
-!(assertEqual (logMath 10 1000)  3)
+!(assertEqual (let $r (logMath 2 8) (- $r 3))  0.0)
+!(assertEqual (let $r (logMath 10 1000) (- $r 3))  0.0)
 
 (= (table1) 
     (mkITable
@@ -142,13 +141,13 @@
                             (Cons O Nil)))
 
 ;; test for incremental selection Utility functions
-; !(assertEqual  (set ((A B) (B A) (C D)) ())  ((A B) (C D)))
-; !(assertEqual  (set ((X Y) (Z W)) ()) ((X Y) (Z W)))
-; !(assertEqual (set ((A B)) ()) ((A B)))
-; !(assertEqual  (set () ())  ())
-; !(assertEqual (set ((A A) (A A) (A A)) ()) ((A A)))
+!(assertEqual  (set ((A B) (B A) (C D)) ())  ((A B) (C D)))
+!(assertEqual  (set ((X Y) (Z W)) ()) ((X Y) (Z W)))
+!(assertEqual (set ((A B)) ()) ((A B)))
+!(assertEqual  (set () ())  ())
+!(assertEqual (set ((A A) (A A) (A A)) ()) ((A A)))
 
-; ;; powerset test
+;; powerset test
 !(assertEqual (powerSet (0 1 2) 0 True) (()))
 !(assertEqual (powerSet (0 1) 1 False) ((0) (1) ()))
 !(assertEqual (powerSet (2 0 1) 1 True) ((2) (0) (1)))
@@ -192,3 +191,6 @@
      (< $conf2 $conf3)) True)  ;; bigger dataset → higher confidence
 
 !(assertEqual (calculateConfidence 1 0 0.1) 0.0)  ;; No features -> confidence 0
+
+!(round 3.12451)
+!(round 3.12451 3)

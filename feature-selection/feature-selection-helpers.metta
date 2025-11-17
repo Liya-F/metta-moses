@@ -1,11 +1,6 @@
 (= (-inf) (py-call (float -inf)))
 (= (round $n $p) (py-call (builtins.round $n $p)))
 
-!(bind! maxInt (pow-math 2 64))
-;; rndFloat -- random float between [0 1] inclsive 
-(: rndFloat (-> Number))
-(= (rndFloat) (/ (random-int 0 (+ maxInt 1)) maxInt))        
-
 ; (: List.at (-> Number (List $a) $a))
 (= (List.at $i $list)
     (eval (unify $list Nil (Error $list "Empty list")
@@ -269,7 +264,7 @@
             0                                                                  ;; log_b(1) = 0 for any base
             (if (== $inputValue $baseValue)                                     ;; log_b(b) = 1 for any base
                 1                                                               
-                (/ (lnMercator $inputValue 0) (lnMercator $baseValue 0))))))    ;; log_b(x) = ln(x) / ln(b)
+                (round (/ (lnMercator $inputValue 0) (lnMercator $baseValue 0)) 3)))))    ;; log_b(x) = ln(x) / ln(b)
 ; (: lnMercator (-> Number Number Number))
 (= (lnMercator $inputNumber $reductionCount)
     (if (>= $inputNumber 2)
@@ -282,24 +277,26 @@
                         (+ $seriesResult (* $reductionCount (ln2))) ;; Add reductionCount*ln(2)
                         ))))))
 
-(: mercatorSeriesSum (-> Number Number Number Number Number))
+; (: mercatorSeriesSum (-> Number Number Number Number Number))
 (= (mercatorSeriesSum $uSquared $currentPower $denominator $accumulator)
   (chain (* 2 (/ $currentPower $denominator)) $currentTerm
     (if (< (abs-math $currentTerm) 0.00000001)
         $accumulator
         (mercatorSeriesSum $uSquared (* $currentPower $uSquared) (+ $denominator 2) (+ $accumulator $currentTerm)))))                        
 
-(= (lg $base $n) (py-call (math.log $base $n)))             
-;; compute entropy
+;; computes entropy from the give tuple of counts by finding the sum of all such (Pi * Log2 Pi) values
+;; $countTuple  -- tuple of (Lable Count) tuples like ((True 4) (False 3))
+;; $totalCount  -- sum of counts
+;; $sum         -- accumulator for (Pi * (Log2 Pi)) values
 (= (entropy $countTuple $totalCount $sum)
-    (if-decons-expr-custom $countTuple $h $t
-        (unify $h ($item $count)
-            (chain (/ $count $totalCount) $p-i ;; need a condition to skip calculation of log of 0 values
-                (chain (if (== $p-i 0) $p-i (round (lg $p-i 2) 2)) $log-val  ;; might need to find new ways of calculating rounded values without python binding
-                    (chain (* $p-i $log-val) $product
-                        (entropy $t $totalCount (- $sum $product))))))
-        $sum))                     
-
+    (if (= $countTuple ())
+        $sum
+        (let ($h $t) (decons-atom $countTuple) 
+                (eval (unify $h ($item $count)
+                    (chain (/ $count $totalCount) $p-i                                          ;; need a condition to skip calculation of log of 0 values
+                    (chain (if (== $p-i 0) $p-i (round (eval (log-math 2 $p-i)) 2)) $log-val    ;; might need to find new ways of calculating rounded values without python binding
+                        (chain (* $p-i $log-val) $product
+                            (entropy $t $totalCount (- $sum $product))))) ())))))
 
 ;; filterTable -- filters table by removing features in $ft-to-remove
 
@@ -396,7 +393,7 @@
                 )
               ($filteredNew (set $new ()))
               ($res  (if (not $exact)
-                        (union-atom-set $filteredNew $ps)
+                        (eval (union-atom-set $filteredNew $ps))
                         $filteredNew
                     )
               )
