@@ -42,7 +42,7 @@
 ;; (:Cscore Type)
 ;; (:mkCscore (-> Number Number Number Number Number Cscore))
 
-;; (:updatePenalizedScore (-> Cscore Bool Cscore))
+; (: updatePenalizedScore (-> Cscore Bool Cscore))
 (= (updatePenalizedScore (mkCscore $scor $cpxy $cpxyPenalty $uniformityPenalty $penalizedScore) $multiplyDiversity)
     (let* (($temp (- $scor $cpxyPenalty))
            ($updatedPScore (if $multiplyDiversity (* $temp $uniformityPenalty) (- $temp $uniformityPenalty)))
@@ -114,7 +114,6 @@
             (or (< $penalizedScore $penalizedScore2) (and (== $penalizedScore $penalizedScore2) (> $cpxy $cpxy2)))))
             
 ;; Check for equality, to within floating-point error, EPSILON
-;; (:cScore== (-> Cscore Cscore Bool))
 ; (: cScore== (-> Cscore Cscore Bool))
 (= (cScore== $cs1 $cs2)
     (let ($sL $cL $cpL $upL $pL $sR $cR $cpR $upR $pR) 
