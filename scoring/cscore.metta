@@ -80,7 +80,6 @@
 
 
 ;; worstCscore
-;; (:worstCscore (-> Cscore))
 ; (: worstCscore (-> Cscore))
 (= (worstCscore)
     (mkCscore (* -1 (pow-math 10 308)) 0 0.0 0.0 (* -1 (pow-math 10 308))))
