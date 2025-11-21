@@ -81,6 +81,7 @@
 
 ;; worstCscore
 ;; (:worstCscore (-> Cscore))
+; (: worstCscore (-> Cscore))
 (= (worstCscore)
     (mkCscore (* -1 (pow-math 10 308)) 0 0.0 0.0 (* -1 (pow-math 10 308))))
 
@@ -114,6 +115,7 @@
             
 ;; Check for equality, to within floating-point error, EPSILON
 ;; (:cScore== (-> Cscore Cscore Bool))
+; (: cScore== (-> Cscore Cscore Bool))
 (= (cScore== $cs1 $cs2)
     (let ($sL $cL $cpL $upL $pL $sR $cR $cpR $upR $pR) 
             ((getScore $cs1) (getComp $cs1) (getCompPen $cs1) (getUniPen $cs1) (getPenScore $cs1)
