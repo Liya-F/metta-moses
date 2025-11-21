@@ -5,6 +5,7 @@
 !(import! &self ../fitness)
 !(import! &self ../bscore)
 !(import! &self ../cscore)
+!(import! &self ../cacheSpace)
 
 ;; Tests for cScoreToExpr
 !(assertEqual (cScoreToExpr (mkCscore 0.0 0.0 0.0 0.0 0.0)) ((0.0 0.0 0.0 0.0 0.0)))
@@ -17,18 +18,24 @@
 !(assertEqual (updatePenalizedScore (mkCscore  0  5  0.1  0.9 (* -1 (pow-math 10 308))) False) (mkCscore  0  5  0.1 0.9 -1.0))
 !(assertEqual (updatePenalizedScore (mkCscore  -3 1 0.7 1.0  (* -1 (pow-math 10 308))) False) (mkCscore  -3 1  0.7 1.0  -4.7))
 
-!(bind! ttable1 (mkITable (Cons (Cons True (Cons False (Cons True Nil)))
-                        (Cons (Cons True (Cons True  (Cons True Nil))) Nil)) 
-                        (Cons A (Cons B (Cons O Nil)))))
-!(bind! ttable2 (mkITable
-                    (Cons (Cons True (Cons True (Cons True Nil)))
-                    (Cons (Cons True (Cons False (Cons False Nil)))
-                    (Cons (Cons False (Cons True (Cons False Nil)))
-                    (Cons (Cons False (Cons False (Cons False Nil))) Nil))))
-                    (Cons A (Cons B (Cons Output Nil)))))
 
-;; !(assertEqual (getCscore ttable1 (buildTree (AND A B)) 2.0 &cacheSpace) (mkCscore -1 2 1 0 -2))
-;; !(assertEqual (getCscore ttable1 (buildTree (OR A B)) 4 &cacheSpace) (mkCscore 0 2 0.5 0 -0.5))
+(= (ttable1)
+    (mkITable
+        (Cons (Cons True (Cons False (Cons True Nil)))
+        (Cons (Cons True (Cons True (Cons True Nil))) Nil))
+        (Cons A (Cons B (Cons O Nil)))))
+
+(= (ttable2)
+    (mkITable
+        (Cons (Cons True (Cons True (Cons True Nil)))
+        (Cons (Cons True (Cons False (Cons False Nil)))
+        (Cons (Cons False (Cons True (Cons False Nil)))
+        (Cons (Cons False (Cons False (Cons False Nil))) Nil))))
+        (Cons A (Cons B (Cons Output Nil)))))
+
+
+!(assertEqual (getCscore (ttable1) (buildTree (AND A B)) 2.0 &cacheSpace) (mkCscore -1 2 1.0 0.0 -2.0))
+!(assertEqual (getCscore (ttable1) (buildTree (OR A B)) 4 &cacheSpace) (mkCscore 0 2 0.5 0.0 -0.5))
 ;; the results of the following two tests will be the same as the above two because the trees are the same because it uses the cacheSpace
 ; ! (assertEqual (getCscore ttable2 (buildTree (AND A B)) 2.0) (mkCscore 0 2 1.0 0 -1.0))
 ; ! (assertEqual (getCscore ttable2 (buildTree (OR A B)) 1) (mkCscore -2 2 2.0 0 -4.0))
@@ -74,7 +81,7 @@
 !(assertEqual (cScoreExpr< ((-0.4 2 0.1 0.1 -0.6)) ((-0.5 3 0.1 0.1 -0.7))) False)
 !(assertEqual (cScoreExpr< ((-0.5 2 0.1 0.1 -0.7)) ((-0.5 3 0.1 0.1 -0.7))) False)  
 
-
+;;
 ;; Test edge cases for cScoreExpr<
 !(assertEqual (cScoreExpr< ((0.0 0.0 0.0 0.0 0.0)) ((0.0 0.0 0.0 0.0 0.0))) False)  ;; Equal scores
 !(assertEqual (cScoreExpr< ((nan 0.0 0.0 0.0 nan)) ((0.0 0.0 0.0 0.0 0.0))) True)   ;;nan handling
