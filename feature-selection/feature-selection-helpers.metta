@@ -2,11 +2,12 @@
 (= (round $n $p) (py-call (builtins.round $n $p)))
 
 ; (: List.at (-> Number (List $a) $a))
-(= (List.at $i $list)
-    (eval (unify $list Nil (Error $list "Empty list")
-        (eval (unify $list (Cons $el $els) 
-            (if (== $i 0) $el (List.at (- $i 1) $els)) (Error $list UnrecognizedFormat))))))
-                       
+(= (List.at $i Nil) (Error Nil "Empty List"))
+(= (List.at $i (Cons $x $xs))
+    (if (== $i 0)
+        $x
+        (List.at (- $i 1) $xs)))
+
 ;; return tuple of unique values and their count
 ;; this one is assuming the list of values have been returned contains the row information. 
 ; (: List.uniqueValuesCount (-> (List $a) Expression))
@@ -202,10 +203,10 @@
     (if (== $indices ())
         Nil
         (eval (unify $datarows Nil Nil
-            (eval (unify $datarows (Cons $row $rows)
-                (chain (collapse (let (superpose $indices) $i (List.at $i $row))) $dataTuple
+            (eval (if (= $datarows (Cons $row $rows))
+                (chain (map-atom $indices $i (eval (List.at $i $row))) $dataTuple
                     (Cons $dataTuple (zipColumn $indices $rows)))
-                ()))))))         
+                ()))))))
 
 ;; return marginal probabilities as tuple (p1 p2)
 ; (: marginalProbs (-> Number Expression Expression))
