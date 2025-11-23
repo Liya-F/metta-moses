@@ -1,5 +1,5 @@
 ;; A function to generate all pairs of numbers from a list, where a != b
-(: genPairs (-> Expression Expression))
+;; (: genPairs (-> Expression Expression))
 (= (genPairs $list)
     ( let*
         (
@@ -18,7 +18,7 @@
 ;;          $swapedOp -> swaped operator
 ;;          $PermPairs -> list of pairs of idx permutations
 ;;          $picked -> list of picked idxs
-(: getArgs (-> Atom Expression Expression Expression Expression))
+;; (: getArgs (-> Atom Expression Expression Expression Expression))
 (= (getArgs $swapedOp $PermPairs $picked $argLabels)
     (let*
         (
@@ -39,7 +39,7 @@
 ;;          Union of $perms (the list of logical expressions generated) with args
 
 ; (= (sampleLogicalPerms $op $arity) (sampleLogicalPerms $op $arity ()))
-(: sampleLogicalPerms (-> Atom Number Expression Expression))
+;; (: sampleLogicalPerms (-> Atom Number Expression Expression))
 (= (sampleLogicalPerms $op $arity $argLabels)
     (let*
         ( 
