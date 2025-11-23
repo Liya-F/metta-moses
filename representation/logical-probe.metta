@@ -9,16 +9,16 @@
 ;; Return: a tuple containing a tuple of LSKs and the final updated tree
 
 ;; logicalProbe
-(: logicalProbe (-> (Tree $a) NodeId Expression Bool Expression Expression))
+;; (: logicalProbe (-> (Tree $a) NodeId Expression Bool Expression Expression))
 (= (logicalProbe $exemplar (mkNodeId $targetId) () $addIfInExemplar $knobs) ($knobs $exemplar))
 (= (logicalProbe $exemplar (mkNodeId $targetId) $perms $addIfInExemplar $knobs)
 (let*
 (
     (($headPerms $tailPerms) (decons-atom $perms))
-    (($updatedTree $lsk) (logicalSubtreeKnob $exemplar (mkNodeId $targetId) $headPerms))
+    (($updatedTree $lsk) (eval (logicalSubtreeKnob $exemplar (mkNodeId $targetId) $headPerms)))
     ($discKnob (getDiscKnob $lsk))
 )
-(if (or $addIfInExemplar (not (inExemplar $discKnob)))
+(if (== $addIfInExemplar True ) ;; (not (eval (inExemplar $discKnob)) )) Fix unComment if addIfInExemplar can be False  
     (let* 
     (
         ($updatedKnobs (concatT $knobs ($lsk)))
@@ -26,3 +26,4 @@
     (logicalProbe $updatedTree (mkNodeId $targetId) $tailPerms $addIfInExemplar $updatedKnobs)
     )
     (logicalProbe $exemplar (mkNodeId $targetId) $tailPerms $addIfInExemplar $knobs))))
+(= (tr $expr) (a (inExemplar (mkDiscKnob $knob $multiplicity (mkDiscSpec 0) (mkDiscSpec 1) Nil))))
