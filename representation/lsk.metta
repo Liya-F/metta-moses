@@ -19,11 +19,11 @@
     ; ($_ (println! (ReducedSubtree: $reducedSubtree))) 
     ($childrenOfTarget (eval (getChildrenById $tree (mkNodeId $target))))
    )
-   (if (== True (eval (List.contains $subtree $childrenOfTarget) ))
+   (if (== True (List.contains $subtree $childrenOfTarget) )
        (let $idOfSubtree (getSubtreeId $tree (mkNodeId $target) $subtree 0)
            ($tree (mkLSK (mkDiscKnob (mkKnob (updateID $idOfSubtree)) (mkMultip 3) (mkDiscSpec 1) (mkDiscSpec 1) Nil)))
        )
-       (if (== True (eval (List.contains $reducedSubtree $childrenOfTarget)))
+       (if (== True (List.contains $reducedSubtree $childrenOfTarget))
            (let $idOfReducedSubtree (getSubtreeId $tree (mkNodeId $target) $reducedSubtree 0)
                 ($tree (mkLSK (mkDiscKnob (mkKnob (updateID $idOfReducedSubtree)) (mkMultip 3) (mkDiscSpec 1) (mkDiscSpec 1) Nil))))
            (let*
