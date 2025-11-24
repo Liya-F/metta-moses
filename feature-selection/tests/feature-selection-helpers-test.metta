@@ -64,13 +64,14 @@
 ; !(assertEqual (insertPair > (2 1) ((4 0) (1 3))) ((4 0) (2 1) (1 3)))                   ;; fist value is score and second one feature index
 ; !(assertEqual (insertPair > (2 1) ((4 0) (2 4) (1 3))) ((4 0) (2 1) (2 4) (1 3)))       
 
-; !(assertEqual (marginalProbs 10 ((A 4) (B 6))) ((A 0.4) (B 0.6)))
-; !(assertEqual (marginalProbs 5 ((X 5))) ((X 1)))
-; !(assertEqual (marginalProbs 8 ((P 2) (Q 2) (R 4))) ((P 0.25) (Q 0.25) (R 0.5)))
-; !(assertEqual (marginalProbs 1 ((Z 1))) ((Z 1)))
-; !(assertEqual (marginalProbs 100 ()) ())
+!(assertEqual (marginalProbs 10 ((A 4) (B 6))) ((A 0.4) (B 0.6)))
+!(assertEqual (marginalProbs 5 ((X 5))) ((X 1)))
+!(assertEqual (marginalProbs 8 ((P 2) (Q 2) (R 4))) ((P 0.25) (Q 0.25) (R 0.5)))
+!(assertEqual (marginalProbs 1 ((Z 1))) ((Z 1)))
+!(assertEqual (marginalProbs 100 ()) ())
 
 ; !(assertEqual (mutualInformation (Cons True (Cons False Nil)) (Cons True (Cons False Nil))) 1.0)
+; !(mutualInformation (Cons True (Cons False Nil)) (Cons True (Cons False Nil)))
 ; !(assertEqual (mutualInformation (Cons True (Cons True Nil)) (Cons False (Cons False Nil))) 0.0)
 ; !(assertEqual (mutualInformation (Cons A (Cons B (Cons A Nil))) (Cons X (Cons Y (Cons X Nil)))) 0.918)
 ; !(assertEqual (mutualInformation (Cons A (Cons A (Cons A Nil))) (Cons X (Cons Y (Cons Z Nil)))) 0.0)

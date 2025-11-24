@@ -186,17 +186,17 @@
     (chain (eval (List.zip $if $of)) $io-zip
     (chain (List.uniqueValuesCount $io-zip ()) $io-c
     (chain (eval (List.length $if)) $rowNum
-    (chain (List.uniqueValuesCount $if ()) $ic              ;; input feature unique values count pairs
+    (chain (List.uniqueValuesCount $if ()) $ic         ;; input feature unique values count pairs
     (chain (List.uniqueValuesCount $of ()) $oc 
-    (chain (marginalProbs $rowNum $io-c) $io-p            ;; input output mutual probs
-    (chain (collapse (chain (superpose $io-p) $io-prob-pair    ;; ((inout output)  prob) piar -- single -- superposed
-        (eval (if (= $io-prob-pair ($pair $prob))
-                (let* (($temp (/ $prob (* (/ (eval (getCount $ic (first-from-pair $pair))) $rowNum) (/ (eval (getCount $oc (second-from-pair $pair))) $rowNum))))
-                        ($log (log-math 2 $temp)))
+    (chain (marginalProbs $rowNum $io-c) $io-p  $io-p))))) ))          ;; input output mutual probs
+    ; (chain (collapse (chain (superpose $io-p) $io-prob-pair    ;; ((inout output)  prob) piar -- single -- superposed
+    ;     (eval (if (= $io-prob-pair ($pair $prob))
+    ;             (let* (($temp (/ $prob (* (/ (eval (getCount $ic (first-from-pair $pair))) $rowNum) (/ (eval (getCount $oc (second-from-pair $pair))) $rowNum))))
+    ;                     ($log (log-math 2 $temp)))
                         
-                        (* $prob $log))
-                ())))) $probTuple
-        (chain (foldl + $probTuple 0) $final-result (round $final-result 3))))))))))
+    ;                     (* $prob $log))
+    ;             ())))) $probTuple
+    ;     (chain (foldl + $probTuple 0) $final-result (round $final-result 3))))))))))
 
 ; (: zipColumn (-> Expression (List (List $a)) (List $a)))        
 (= (zipColumn $indices $datarows)
@@ -211,7 +211,7 @@
 ;; return marginal probabilities as tuple (p1 p2)
 ; (: marginalProbs (-> Number Expression Expression))
 (= (marginalProbs $len $countTuple)                         ;; depending on how the above goes most of the code for calculating frequencies could be included in this function
-    (collapse (chain (superpose $countTuple) $pair (eval (unify $pair ($val $count) ($val (/ $count $len)) ()))))) 
+    (collapse (chain (superpose $countTuple) $pair (eval (if (= $pair ($val $count)) ($val (/ $count $len)) ()))))) 
 
 ;; return the value associated with a value in a tuple of pairs
 ;; as in ((True 0.6) (False 0.4)) -- if one wants to get value associated with True
