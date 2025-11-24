@@ -18,7 +18,7 @@
     (($updatedTree $lsk) (eval (logicalSubtreeKnob $exemplar (mkNodeId $targetId) $headPerms)))
     ($discKnob (getDiscKnob $lsk))
 )
-(if (== $addIfInExemplar True ) ;; (not (eval (inExemplar $discKnob)) )) Fix unComment if addIfInExemplar can be False  
+(if (or $addIfInExemplar (not (eval (inExemplar $discKnob)) )) 
     (let* 
     (
         ($updatedKnobs (concatT $knobs ($lsk)))
@@ -26,4 +26,3 @@
     (logicalProbe $updatedTree (mkNodeId $targetId) $tailPerms $addIfInExemplar $updatedKnobs)
     )
     (logicalProbe $exemplar (mkNodeId $targetId) $tailPerms $addIfInExemplar $knobs))))
-(= (tr $expr) (a (inExemplar (mkDiscKnob $knob $multiplicity (mkDiscSpec 0) (mkDiscSpec 1) Nil))))
