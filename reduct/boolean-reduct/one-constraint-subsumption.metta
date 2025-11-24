@@ -17,14 +17,20 @@
 ;; Example: input: POA ==> (AND E D), commandSet ==> (C D), parent ==> (OR (AND E D) C)
 ;;        : output: ((OR C) () True)
 ;;(: oneConstraintSubsume (-> Expression Expression Expression (Expression Expression Bool)))
+
+
+
 (= (oneConstraintSubsume $parent $current $commandSet)
+    (if (== $current ())
+      (($parent $current False))(
   (if-decons-expr-custom $current $head $tail 
     (let*
       (
         ($head (car-atom $current))
-        ($tail (cdr-atom $current))
+        ($tail (cdr-atom $current))  
       )
       (case $head
+     
         (
           (OR ($parent $current False))
           (NOT ($parent $current False))
@@ -43,4 +49,5 @@
    )
   ($parent $current False)
   )
-)
+)))
+
