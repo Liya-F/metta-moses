@@ -38,8 +38,6 @@ def extract_and_print(result, path, idx) -> bool:
     raw_passed = extracted.count("✅")
     passed_asserts = min(raw_passed, total_asserts) # Cap passed asserts to total asserts to avoid redundancy
 
-
-
     # Check for actual failures in the Petta Report
     has_failure = False  # Assume failure by default
 
