@@ -3,18 +3,18 @@
 ;; knob representation only contains nodeid
 ;; we don't need this constractor since we are passing the updated tree as state
 
-(: Knob Type)
-(: mkKnob (-> NodeId Knob)) 
-
+;; (: Knob Type)
+;; (: mkKnob (-> NodeId Knob)) 
+;;
 ;;; Discrete knob representation
 ;      Multiplicity: number of possible distinct states/settings a knob can have
 ;      DiscSpec: Disc specification containing the states
-(: DiscreteKnob Type)
-(: Multiplicity Type)
-(: mkMultip (-> Number Multiplicity))
-
-(: DiscSpec Type)
-(: mkDiscSpec (-> Number DiscSpec))
+;; (: DiscreteKnob Type)
+;; (: Multiplicity Type)
+;; (: mkMultip (-> Number Multiplicity))
+;;
+;; (: DiscSpec Type)
+;; (: mkDiscSpec (-> Number DiscSpec))
 
 ;; (: mkDiscKnob (-> Knob Multiplicity DiscreteKnob))  
 ;; (: mkDiscKnob (-> Knob Multiplicity DiscSpec DiscSpec (List DiscSpec) DiscreteKnob))
@@ -24,8 +24,8 @@
 
 ;; Logical subtree knob representation
        ;Subtree: represents a portion of the tree that will be controlled by the knob
-(: LogicalSubtreeKnob Type)
-(: mkLSK (-> DiscreteKnob LogicalSubtreeKnob))
+;; (: LogicalSubtreeKnob Type)
+;; (: mkLSK (-> DiscreteKnob LogicalSubtreeKnob))
 
 ;; Checks if a DiscreteKnob is considered part of the exemplar based on its default specifier.
 ;; Params:
@@ -73,7 +73,7 @@
 
 ;; A comparison function for discSpec 
 ;; (used as a $compFunc to insert knobSpec and knob pairs into a multimap ) 
-(: discSpec<= (-> DiscSpec DiscSpec Bool))
+;; (: discSpec<= (-> DiscSpec DiscSpec Bool))
 (= (discSpec<= (mkDiscSpec $newKey) (mkDiscSpec $currKey))
 (<= $newKey $currKey))
 

@@ -20,7 +20,7 @@
                (mkLSK (mkDiscKnob (mkKnob  (mkNodeId (1))) (mkMultip 2) (mkDiscSpec 0) (mkDiscSpec 0) Nil))
                )
 
-; ; these type tests have been commented out because they fail on mettalog
+; ; these type tests have been commented out because they fail on mettalog and in PeTTa 
 ; ! (assertEqual (let $type (get-type (mkKnob (mkTree (mkNode A) Nil) (mkNodeId (1)))) $type) Knob)
 ; ! (assertEqual (let $type (get-type (mkDiscKnob (mkKnob (mkTree (mkNode A) Nil) (mkNodeId (1))) (mkMultip 2) (mkDiscSpec 0) (mkDiscSpec 0) Nil)) $type) DiscreteKnob)
 ; ! (assertEqual (let $type (get-type (mkDiscKnob (mkKnob (mkTree (mkNode A) Nil) (mkNodeId (1))) (mkMultip 2))) $type) DiscreteKnob)
