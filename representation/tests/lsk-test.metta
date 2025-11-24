@@ -40,7 +40,7 @@
     (mkDiscKnob
       (mkKnob
         (mkNodeId (2 3)))
-      (mkMultip 3)))
+      (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) Nil))
     ))
 
 
