@@ -27,15 +27,25 @@ def extract_and_print(result, path, idx) -> bool:
     output = result.stdout if result.stdout else result.stderr
     extracted = output.strip()  # Remove any leading/trailing whitespace
 
-    # Debug: Print the raw output for troubleshooting
-    # print(f"Raw output: {output}")
+    with open(path, "r") as test_file:
+        content = test_file.read()
+        total_asserts = sum(
+            1
+            for line in content.splitlines()
+            if "!(assertEqual" in line and not line.lstrip().startswith(";")
+        )
+
+    raw_passed = extracted.count("✅")
+    passed_asserts = min(raw_passed, total_asserts) # Cap passed asserts to total asserts to avoid redundancy
+
+
 
     # Check for actual failures in the Petta Report
     has_failure = False  # Assume failure by default
 
     # Treat exit code 0 as success, anything else as failure
     if result.returncode == 0:
-        if "❌" in extracted:
+        if "❌" in extracted or passed_asserts != total_asserts:
             has_failure = True
             extracted = f"test failed (output: {extracted})"
         else:

@@ -5,8 +5,7 @@ git clone https://github.com/patham9/PeTTa
 
 cd PeTTa || exit
 
-$gitHash = "c04c01295dffb875af1287a3f7283a7bd6acee09
-"
+$gitHash = "c04c01295dffb875af1287a3f7283a7bd6acee09"
 git checkout $gitHash
 
 if ! grep -q "^#!/bin/bash" run.sh; then
