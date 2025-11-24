@@ -13,26 +13,26 @@
 ; (: List.uniqueValuesCount (-> (List $a) Expression))
 (= (List.uniqueValuesCount $list $acc)
     (eval (unify $list Nil $acc
-        (eval (unify $list (Cons $x $xs)
+            (if (= $list (Cons $x $xs))
             (if (patternExists ($x $c) $acc)
                 (chain (eval (updateCount $x $acc)) $count-updated
                     (List.uniqueValuesCount $xs $count-updated))
                 (chain (union-atom $acc (($x 1))) $new-tuple-added
-                    (List.uniqueValuesCount $xs $new-tuple-added))) (Error $list UnrecognizedFormat))))))
+                    (List.uniqueValuesCount $xs $new-tuple-added))) (Error $list UnrecognizedFormat)))))
 
 ; (: Table.getColumn (-> Number (List (List $a)) (List $a)))
 (= (Table.getColumn $i $rows)
     (eval (unify $rows Nil Nil
-       (eval (unify $rows (Cons $row $rest)
-            (Cons (List.at $i $row) (Table.getColumn $i $rest)) ())))))
+       (if (= $rows (Cons $row $rest))
+            (Cons (List.at $i $row) (Table.getColumn $i $rest)) ()))))
 ; ;; Table.pop        -- gets and removes a column from the current ttable structure
 ; ;;                  -- returns the remaining table and the culumn asked for
 (= (Table.pop $i $rows)
     (eval (unify $rows Nil Nil
-        (eval (unify $rows (Cons (Cons $d $ds) $rest)  ;; $d and $ds for data and rest of data
-            (if (== $i 0)
-                (Cons $ds (Table.pop $i $rest))
-                (Cons (Cons $d (eval (List.pop (- $i 1) $ds))) (Table.pop $i $rest))) ())))))
+        (eval (if (= $rows (Cons (Cons $d $ds) $rest))  ;; $d and $ds for data and rest of data
+                (if (== $i 0)
+                    (Cons $ds (Table.pop $i $rest))
+                    (Cons (Cons $d (eval (List.pop (- $i 1) $ds))) (Table.pop $i $rest))) ())))))
 ; ;; removes the first column from table
 ; (: Table.pop (-> (List (List $a)) (List (List $a))))
 ; (= (Table.pop $rows)
@@ -84,13 +84,13 @@
 ; (: patternExists (-> Expression Expression Bool))
 (= (patternExists $pat $collection)
     (let $a (collapse (chain (superpose $collection) $s
-        (eval (unify $s $pat True False)))) (foldl or $a False)))        
+        (eval (if (= $s $pat) True False)))) (foldl or $a False)))        
         
 ;; replace value and count pair in collection with one higher count pair        
 ; (: updateCount (-> Expression Expression Expression))
 (= (updateCount $val $collection)
     (collapse (chain (superpose $collection) $s 
-                (eval (unify $s ($val $count) ($val (+ 1 $count)) $s))))) 
+                (eval (if (= $s ($val $count)) ($val (+ 1 $count)) $s))))) 
 
 ;; sorting pairs 
 ;; $op -- comparator $pairTuple -- tuple of pairs
@@ -190,8 +190,8 @@
     (chain (List.uniqueValuesCount $of ()) $oc 
     (chain (marginalProbs $rowNum $io-c) $io-p            ;; input output mutual probs
     (chain (collapse (chain (superpose $io-p) $io-prob-pair    ;; ((inout output)  prob) piar -- single -- superposed
-        (eval (unify $io-prob-pair ($pair $prob)
-                (let* (($temp (/ $prob (* (/ (eval (getCount $ic (first $pair))) $rowNum) (/ (eval (getCount $oc (second $pair))) $rowNum))))
+        (eval (if (= $io-prob-pair ($pair $prob))
+                (let* (($temp (/ $prob (* (/ (eval (getCount $ic (first-from-pair $pair))) $rowNum) (/ (eval (getCount $oc (second-from-pair $pair))) $rowNum))))
                         ($log (log-math 2 $temp)))
                         
                         (* $prob $log))
@@ -320,15 +320,15 @@
 
 ; (: getInputLabels (-> (List Symbol) Expression))
 (= (getInputLabels $labels)
-    (let $res (inputLables $labels) (eval (List.foldl cons-atom () $res))))
+    (let $res (inputLables $labels) (eval (List.foldl append () $res))))
 
 ; (: inputLables (-> (List Symbol) (List Symbol)))    
 (= (inputLables $labels)
     (eval (unify $labels Nil (Error $labels NoLabelsSpecified)
-        (eval (unify $labels (Cons $a $as)
-            (if (== $as Nil)
-                Nil
-                (Cons $a (inputLables $as))) (Error $labels UnrecognizedFormat))))))
+        (eval (if (= $labels (Cons $a $as))
+                (if (== $as Nil)
+                    Nil
+                    (let $r (inputLables $as) (Cons $a $r))) (Error $labels UnrecognizedFormat))))))
 
 ; (: fsToNames (-> (List Symbol) Expression Expression))
 (= (fsToNames $labels $ft-indices)
