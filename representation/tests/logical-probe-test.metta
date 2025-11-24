@@ -21,7 +21,7 @@
       ((mkTree (mkNode B) Nil) (mkTree (mkNode A) Nil))    
       True
       ())
-      ( ((mkLSK (mkDiscKnob (mkKnob (mkNodeId (2 1))) (mkMultip 3) (mkDiscSpec 1) (mkDiscSpec 1) Nil)) (mkLSK (mkDiscKnob (mkKnob (mkNodeId (2 3))) (mkMultip 3))))    
+      ( ((mkLSK (mkDiscKnob (mkKnob (mkNodeId (2 1))) (mkMultip 3) (mkDiscSpec 1) (mkDiscSpec 1) Nil)) (mkLSK (mkDiscKnob (mkKnob (mkNodeId (2 3))) (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) Nil)))    
         (mkTree (mkNode AND) 
                 (Cons (mkTree (mkNode A) Nil) 
                 (Cons (mkTree (mkNode OR) 
@@ -42,7 +42,7 @@
 
      (((mkLSK 
         (mkDiscKnob (mkKnob  (mkNodeId (1 1))) 
-          (mkMultip 3))))
+          (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) Nil)))
 
       (mkTree (mkNode OR) 
             (Cons (mkTree (mkNode B) 
