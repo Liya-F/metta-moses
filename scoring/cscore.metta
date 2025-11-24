@@ -46,7 +46,8 @@
 (= (updatePenalizedScore (mkCscore $scor $cpxy $cpxyPenalty $uniformityPenalty $penalizedScore) $multiplyDiversity)
     (let* (($temp (- $scor $cpxyPenalty))
            ($updatedPScore (if $multiplyDiversity (* $temp $uniformityPenalty) (- $temp $uniformityPenalty)))
-           (() (println! (PenalizedScore: $updatedPScore))))
+        ;    ($_ (println! (PenalizedScore: $updatedPScore)))
+           )
         
             (mkCscore $scor $cpxy $cpxyPenalty $uniformityPenalty $updatedPScore)))
 ;converts a score to an expression

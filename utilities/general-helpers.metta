@@ -926,7 +926,7 @@
 ;;
 ;; coll.append — append/insert one element into supported collections
 ;;
-(: coll.append (-> $coll $el $coll))
+; (: coll.append (-> $coll $el $coll))
 
 ;; List ADT (append to tail)
 (= (coll.append Nil $el) (Cons $el Nil))
@@ -1088,31 +1088,31 @@
 ;; Added `eval` to ensure internal functions from other files are properly resolved during parsing.
 ;; Without it, PeTTa only executes functions defined in the current file and skips external ones.
 
-(: coll.keys (-> $map (List $k)))
+; (: coll.keys (-> $map (List $k)))
 (= (coll.keys NilMap) Nil)
-(= (coll.keys (ConsMap $pair $tail)) (Map.keys (ConsMap $pair $tail)))
+(= (coll.keys (ConsMap $pair $tail)) (eval (Map.keys (ConsMap $pair $tail))))
 
-(: coll.values (-> $map (List $v)))
+; (: coll.values (-> $map (List $v)))
 (= (coll.values NilMap) Nil)
-(= (coll.values (ConsMap $pair $tail)) (Map.values (ConsMap $pair $tail)))
+(= (coll.values (ConsMap $pair $tail)) (eval (Map.values (ConsMap $pair $tail))))
 
-(: coll.items (-> $map (List ($k $v))))
+; (: coll.items (-> $map (List ($k $v))))
 (= (coll.items NilMap) Nil)
-(= (coll.items (ConsMap $pair $tail)) (Map.items (ConsMap $pair $tail)))
+(= (coll.items (ConsMap $pair $tail)) (eval (Map.items (ConsMap $pair $tail))))
 
-(: coll.find (-> $map $k Number))
+; (: coll.find (-> $map $k Number))
 (= (coll.find NilMap $k) -1)
-(= (coll.find (ConsMap $pair $tail) $k) (Map.find (ConsMap $pair $tail) $k))
+(= (coll.find (ConsMap $pair $tail) $k) (eval (Map.find (ConsMap $pair $tail) $k)))
 
-(: coll.getByKey (-> $map $k $v))
+; (: coll.getByKey (-> $map $k $v))
 (= (coll.getByKey (ConsMap $pair $tail) $k) (eval (Map.getByKey $k (ConsMap $pair $tail))))
 (= (coll.getByKey NilMap $k) (Error $k "not found"))
 
-(: coll.findOne (-> $mmap $k $v))
+; (: coll.findOne (-> $mmap $k $v))
 (= (coll.findOne (ConsMMap $pair $tail) $k) (eval (MultiMap.findOne $k (ConsMMap $pair $tail))))
 (= (coll.findOne NilMMap $k) (Error $k "not found"))
 
-(: coll.findAll (-> $mmap $k (List $v)))
+; (: coll.findAll (-> $mmap $k (List $v)))
 (= (coll.findAll (ConsMMap $pair $tail) $k) (eval (MultiMap.findAll $k (ConsMMap $pair $tail))))
 (= (coll.findAll NilMMap $k) Nil)
 

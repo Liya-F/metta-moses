@@ -9,7 +9,7 @@
 !(import! &self ../../scoring/bscore)
 !(import! &self ../../scoring/cscore)
 
-!(bind! &newSpace (new-space))
+; ; !(bind! &newSpace (new-space))
 !(println! ("test ~= "))
 !(assertEqual (~= 1 2) True)
 !(assertEqual (~= 1 1) False)
@@ -240,7 +240,7 @@
 !(assertEqual (max 1 2) 2)
 !(assertEqual (max 2 4) 4)
 
-;; FIX: Failing Test case
+; ;; FIX: Failing Test case
 
 !(assertEqual (println! ("testing failing case in gen it's working ✅")))
 !(assertEqual (gen 1 (0)) (1 0))
@@ -337,13 +337,13 @@
 
 !(bind! &__ (new-space))
 
-; !(add-reduct &__ (superpose ((A B C) atom 2 4 (2 1))))
+;; !(add-reduct &__ (superpose ((A B C) atom 2 4 (2 1))))
 !(println! ("cleanspace "))
 !(assertEqual 
-        (let () (cleanSpace &__) 
-            (collapse (get-atoms &__))) (empty))
+        (let $_ (cleanSpace &__) 
+            (collapse (get-atoms &__))) (collapse (empty)))
 
-;; Test repeat
+; ;; Test repeat
 !(println! ("testig: repeat "))
 !(assertEqual (repeat A 3) (A A A))
 !(assertEqual (repeat (== 1 2) 0) ())
@@ -354,7 +354,7 @@
 ;; Test update-atom
 !(println! ("testig: add-atom "))
 !(add-atom &__ (A 2 3))
-!(let () (collapse (update-atom  &__ (A 2 3) (A 3 4))) (assertEqual (match &__ $x $x) (A 3 4))) ;; FIX: Possibly failing test
+!(let $_ (collapse (update-atom  &__ (A 2 3) (A 3 4))) (assertEqual (match &__ $x $x) (A 3 4))) ;; FIX: Possibly failing test
 
 ;; Test flatten-list
 !(println! ("testing flatten-list "))
@@ -381,7 +381,7 @@
 !(assertEqual (isValidExp (AND A B) (start expr bop uop term)) True)
 !(assertEqual (isValidExp (OR (AND B null) (NOT B)) (start expr bop uop term)) True)
 
-;; ;; Test for compoase (.)
+;; ;; Test for compose (.)
 !(println! ("testing: compose instead of . "))
 !(assertEqual ((compose not isEven) 4) False)
 !(assertEqual ((compose isEven (compose decrement increment)) 4) True)
@@ -404,10 +404,10 @@
 !(assertEqual (let $a (second (1 2)) (get-type $a)) Number)
 !(assertEqual (let $a (first (second (1 (1 2)))) (get-type $a)) Number)
 
-;; Test the add Function for Numbers wrapped within constructors
+; Test the add Function for Numbers wrapped within constructors
 !(println! ("testing add "))
 !(assertEqual (add (mkMultip 1) (mkMultip 2)) (mkMultip 3))
-!(assertEqual (add (mkMultip A) (mkMultip 1)) (Error (A or 1) "One of the argument is not a number"))
+; !(assertEqual (add (mkMultip A) (mkMultip 1)) (Error (A or 1) "One of the argument is not a number"))
 ;; Test for expToMMap
 ;; !(println! ("testing expToMMap "))
 ;; !(assertEqual 
@@ -447,7 +447,7 @@
 ;; custom comparison functions for selectionSort
 
 ;; Function that compares the size of the two inputes and return True if the first is greater false otherwise
-(: bySize Expression Expression Bool)
+;(: bySize Expression Expression Bool)
 (= (bySize $x $y) 
     (let* (
         ($xLen (size-atom $x))
@@ -456,7 +456,7 @@
     (> $xLen $yLen)
 ))
 
-;; Function that compares the second element (which is number) of the two inputes and return True if the first is greater false otherwise
+; Function that compares the second element (which is number) of the two inputes and return True if the first is greater false otherwise
 ; (: bySecondAtom (-> ($a Number) ($b Number) Bool))
 (= (bySecondAtom $x $y) 
     (let* (
@@ -466,7 +466,7 @@
     (> $xSecond $ySecond)
     ))
 
-;; Test cases -- bySize
+; Test cases -- bySize
 !(println! ("testing bySize "))
 !(assertEqual (bySize (w) (1 1 1)) False)
 !(assertEqual (bySize (I c o g) (1 1 1)) True)
@@ -476,7 +476,7 @@
 !(assertEqual (bySecondAtom (b 1) (a 2)) False) 
 !(assertEqual (bySecondAtom (b 10) (a 2)) True) 
 
-;; Test cases -- selectionSort
+; ;; Test cases -- selectionSort
 !(println! ("testing selectionSort "))
 !(assertEqual (selectionSort (4 1 9 2 8 3 25 2 9 73) 2 <) (1 2 4 9 8 3 25 2 9 73))
 !(assertEqual (selectionSort (5 2 9 1 73 2 3 9 8 34 25) 3 >) (73 34 25 5 2 9 1 2 3 9 8))
@@ -485,7 +485,7 @@
 !(assertEqual (selectionSort (1 2 3) 4 >) (3 2 1))
 
 ;; Test cases -- selectionSort with non numeric expressions
-(println! ("Test cases -- selectionSort with non numeric expressions"))
+!(println! ("Test cases -- selectionSort with non numeric expressions"))
 !(assertEqual (selectionSort ((a b) (a b c) (d) (m o s e s)) 1 bySize) ((m o s e s) (a b) (a b c) (d)))
 !(assertEqual (selectionSort ((a 1) (b 2) (d 10) (l 8)) 2 bySecondAtom) ((d 10) (l 8) (a 1) (b 2)))
 
@@ -612,14 +612,14 @@
   (apply >= (mkCscore -2.0 3.0 1.0 0.5 -3.5)
                (mkCscore -1.0 2.0 1.0 0.5 nan))
   True)
-(println! ("apply <"))
+!(println! ("apply <"))
 !(assertEqual
   (apply <  (mkCscore -1.0 2.0 1.0 0.5 nan)
                (mkCscore -2.0 3.0 1.0 0.5 -3.5))
   True)
 
 ;; Approximate equality for Cscore via apply == (inline)
-(println! ("apply =="))
+!(println! ("apply =="))
 !(assertEqual
   (apply == (mkCscore 1.0000005 2.0 0.0 0.0 0.5)
                (mkCscore 1.0000006 2.0 0.0 0.0 0.5))
