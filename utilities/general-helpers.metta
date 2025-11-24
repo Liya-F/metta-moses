@@ -1157,7 +1157,7 @@
 ; this is to replace the built-in if-decons-expr which will depricate in future on mettalog
 ; it is used to deconstruct an expression into head and tail and then use them in the then expression
 ; if the expression is empty it will use the else expression
-(: if-decons-expr-custom (-> Expression %Undefined% %Undefined% Expression Expression %Undefined%))
+;;(: if-decons-expr-custom (-> Expression %Undefined% %Undefined% Expression Expression %Undefined%))
 (= (if-decons-expr-custom $list $h $t $then $else)
       (if (or (== $list ()) (not (== (get-metatype $list) Expression)))
             $else
