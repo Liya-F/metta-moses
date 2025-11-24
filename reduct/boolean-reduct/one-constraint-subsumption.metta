@@ -24,13 +24,10 @@
     (if (== $current ())
       (($parent $current False))(
   (if-decons-expr-custom $current $head $tail 
-  
     (let*
       (
         ($head (car-atom $current))
-        ($tail (cdr-atom $current))
-      
-        
+        ($tail (cdr-atom $current))  
       )
       (case $head
      
