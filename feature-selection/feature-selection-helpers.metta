@@ -131,15 +131,15 @@
     (if (== $list ())
         (($mi $new-i))
         (let ($h $t) (decons-atom $list)
-            (eval (unify ($mi-old $i) $h
-                (if ($op $mi $mi-old)
-                    (cons-atom ($mi $new-i) $list)
-                    (if (== $mi $mi-old)
-                        (if (<= $new-i $i)                          ;; tie breaker -- index value -- lower index values come first -- keeping the normal order
-                            (cons-atom ($mi $new-i) $list)
-                            (chain (insertPair $op ($mi $new-i) $t) $res (cons-atom $h $res)))
-                        (chain (insertPair $op ($mi $new-i) $t) $res (cons-atom $h $res))))
-                    ())))))
+            (eval (if (= ($mi-old $i) $h)
+                    (if ($op $mi $mi-old)
+                        (cons-atom ($mi $new-i) $list)
+                        (if (== $mi $mi-old)
+                            (if (<= $new-i $i)                          ;; tie breaker -- index value -- lower index values come first -- keeping the normal order
+                                (cons-atom ($mi $new-i) $list)
+                                (chain (insertPair $op ($mi $new-i) $t) $res (cons-atom $h $res)))
+                            (chain (insertPair $op ($mi $new-i) $t) $res (cons-atom $h $res))))
+                        ())))))
 
 ;; find maximum of two pairs
 ;; XXX notice the use of => for comparison -- as per current mettlog interpreter implementation
@@ -157,13 +157,16 @@
 (= (exponentialSelection $mean $numDesired $scoreLabelTuple $xn $acc)
     (if (== $numDesired 0)
         $acc
-        (trace! ($rndFloat $xn) (if-decons-expr-custom $scoreLabelTuple $h $t
-            (chain (rndFloat) $rndFloat
-            (if (< $rndFloat $xn)
-                (chain (union-atom $acc ($h)) $new-acc
-                    (exponentialSelection $mean (- $numDesired 1) $t (* $xn $mean) $new-acc))
-                (exponentialSelection $mean $numDesired $t (* $xn $mean) $acc))) ;; some adjustment needed here to make sure numDesired amount is returned check if numDesired is equal to what is left. if so append all to the acc to make sure  
-        $acc))))
+        (trace! ($rndFloat $xn)
+            (if (= $scoreLabelTuple ())
+                $acc
+                (let* ((($h $t) (decons-atom $scoreLabelTuple))
+                        ($rndFloat (random-float 0 1)))
+
+                        (if (< $rndFloat $xn)
+                            (chain (union-atom $acc ($h)) $new-acc
+                              (exponentialSelection $mean (- $numDesired 1) $t (* $xn $mean) $new-acc))
+                            (exponentialSelection $mean $numDesired $t (* $xn $mean) $acc))))))) ;; some adjustment needed here to make sure numDesired amount is returned check if numDesired is equal to what is left. if so append all to the acc to make sure  
 
 ;; take N values from tuple
 ; (: takeN (-> Number Expression Expression))
@@ -188,15 +191,15 @@
     (chain (eval (List.length $if)) $rowNum
     (chain (List.uniqueValuesCount $if ()) $ic         ;; input feature unique values count pairs
     (chain (List.uniqueValuesCount $of ()) $oc 
-    (chain (marginalProbs $rowNum $io-c) $io-p  $io-p))))) ))          ;; input output mutual probs
-    ; (chain (collapse (chain (superpose $io-p) $io-prob-pair    ;; ((inout output)  prob) piar -- single -- superposed
-    ;     (eval (if (= $io-prob-pair ($pair $prob))
-    ;             (let* (($temp (/ $prob (* (/ (eval (getCount $ic (first-from-pair $pair))) $rowNum) (/ (eval (getCount $oc (second-from-pair $pair))) $rowNum))))
-    ;                     ($log (log-math 2 $temp)))
+    (chain (marginalProbs $rowNum $io-c) $io-p          ;; input output mutual probs
+    (chain (collapse (chain (superpose $io-p) $io-prob-pair    ;; ((inout output)  prob) piar -- single -- superposed
+        (if (= $io-prob-pair ($pair $prob))
+                (let* (($temp (/ $prob (* (/ (eval (getCount $ic (first-from-pair $pair))) $rowNum) (/ (eval (getCount $oc (second-from-pair $pair))) $rowNum))))
+                        ($log (log-math 2 $temp)))
                         
-    ;                     (* $prob $log))
-    ;             ())))) $probTuple
-    ;     (chain (foldl + $probTuple 0) $final-result (round $final-result 3))))))))))
+                        (* $prob $log))
+                ()))) $probTuple
+        (chain (foldl + $probTuple 0) $final-result (round $final-result 3))))))))))
 
 ; (: zipColumn (-> Expression (List (List $a)) (List $a)))        
 (= (zipColumn $indices $datarows)
@@ -218,7 +221,7 @@
 ; (: getCount (-> Expression $a Number))
 (= (getCount $tuples $cue)
     (chain (superpose $tuples) $pair
-        (eval (unify $pair ($cue $prob) $prob (empty)))))
+        (eval (if (= $pair ($cue $prob)) $prob (empty)))))
 
 ;; check for equality of expressions -- to make up for ordering issues     
 ; (: isEqual (-> $a $b Bool))
@@ -320,7 +323,7 @@
 
 ; (: getInputLabels (-> (List Symbol) Expression))
 (= (getInputLabels $labels)
-    (let $res (inputLables $labels) (eval (List.foldl append () $res))))
+    (let $res (inputLables $labels) (eval (List.foldl cons-atom () $res))))
 
 ; (: inputLables (-> (List Symbol) (List Symbol)))    
 (= (inputLables $labels)
