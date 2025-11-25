@@ -1,14 +1,12 @@
-! (register-module! ../../../../metta-moses)
-
-! (import! &self metta-moses:utilities:general-helpers)
-! (import! &self metta-moses:reduct/boolean-reduct:rte-helpers)
-! (import! &self metta-moses:reduct/boolean-reduct:cut-unnecessary-or)
-! (import! &self metta-moses:reduct/boolean-reduct:cut-unnecessary-and)
-! (import! &self metta-moses:reduct/boolean-reduct:delete-inconsistent-handle)
-! (import! &self metta-moses:reduct/boolean-reduct:zero-constraint-subsumption)
-! (import! &self metta-moses:reduct/boolean-reduct:one-constraint-subsumption)
-! (import! &self metta-moses:reduct/boolean-reduct:promote-common-constraints)
-! (import! &self metta-moses:reduct/boolean-reduct:reduce-to-elegance)
+!(import! &self ../../../utilities/general-helpers)
+!(import! &self ../rte-helpers)
+!(import! &self ../cut-unnecessary-or)
+!(import! &self ../cut-unnecessary-and)
+!(import! &self ../delete-inconsistent-handle)
+!(import! &self ../zero-constraint-subsumption)
+!(import! &self ../one-constraint-subsumption)
+!(import! &self ../promote-common-constraints)
+!(import! &self ../reduce-to-elegance)
 
 
 ;; Tests for the component functions of the RTE algorithms.
@@ -54,7 +52,7 @@
 !(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND X Y) (AND Z B))) W) (AND (OR T U (AND X Y) (AND Z B))) False))) (() (A D) ((OR N O P V W T U (AND R X (NOT C)) (AND X Y) (AND Z B)) () True)))
 !(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U)) W) (AND (OR T U)) False))) (() (A D) ((OR N O P V W T U (AND R X (NOT C))) () True)))
 !(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND X Y) (AND Z B))) W) (AND (OR T U (AND X Y) (AND Z B))) False))) (() (A D) ((OR N O P V W T U (AND R X (NOT C)) (AND X Y) (AND Z B)) () True)))
-!(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND U Y) (AND U B))) W) (OR T U (AND U Y) (AND U B)) False))) (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND U Y) (AND U B))) W) (OR T U (AND U Y) (AND U B)) False)))
+!(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND U Y) (AND U B))) W) (OR T U (AND U Y) (AND U B)) False)))) (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND U Y) (AND U B))) W) (OR T U (AND U Y) (AND U B)) False))
 !(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND U Y) (AND U B))) W) (AND (OR T U (AND U Y) (AND U B))) False))) (() (A D) ((OR N O P (AND R X (NOT C)) V (AND U (OR T (AND Y) (AND B))) W) (AND U (OR T (AND Y) (AND B))) True)))
 !(assertEqual (applyAndTransformations (() (A D) ((OR N O P (AND R X (NOT C)) V (AND (OR T U (AND U Y) (AND U B))) W) (AND (OR T U (AND Y) (AND D) (AND H I) (AND B))) False))) (() (A D) ((OR N O P V W T U (AND R X (NOT C)) (AND (OR T U (AND U Y) (AND U B))) (AND Y) (AND D) (AND H I) (AND B)) () True)))
 !(assertEqual (applyAndTransformations (() () ((OR N O P (AND R X (NOT C)) V (AND Z (OR T (AND Y) (AND D) (AND H I) (AND B))) W) (AND Z (OR T U (AND Y) (AND D) (AND H I) (AND B))) False))) (() () ((OR N O P (AND R X (NOT C)) V (AND Z (OR T (AND Y) (AND D) (AND H I) (AND B))) W) (AND Z (OR T U (AND Y) (AND D) (AND H I) (AND B))) False)))

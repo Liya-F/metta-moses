@@ -17,21 +17,20 @@
 (= (andCut $parent $current)
         (let*
           (
-              ; ($log (println! (===Inside AndCut===)))
-              ; ($log' (println! (Current $current : Parent : $parent)))
+              ; ($_ (println! (===Inside AndCut===)))
+              ; ($_ (println! (Current $current : Parent : $parent)))
               ($parentSec (collapse (removeEmptyAND (superpose $parent))))
               ($currentSec (if (=== $parent $current) $parentSec (collapse (removeEmptyAND (superpose $current)))))
               (($guardSet $child) (getLiteralChildren $currentSec))
-              (($h $t) (if (== (get-metatype $child) Expression) (decons-atom $child) (() ())))
-              ($then (cdr-atom $child))
-              ($tail (if-decons-expr-custom $child $h $t $then "No child"))
-              ; ($log (println! ("Tail: " $tail)))
+              (($h $t) (if (and (== (get-metatype $child) Expression) (not (== $child ()))) (decons-atom $child) (() ())))
+              ($tail (if-decons-expr-custom $child $h $t $t "No child"))
+              ; ($_ (println! ("Tail: " $tail)))
           )
           (if (and (== $tail ()) (== $guardSet ())) ;; Has no guardSet and has single child
               (let*
                   (
-                      ; ($log (println! (===Inside AndCut===)))
-                      ; ($log' (println! (Current $current : Parent : $parent)))
+                      ; ($_ (println! (===Inside AndCut===)))
+                      ; ($_ (println! (Current $current : Parent : $parent)))
                       ($childFirst (if-decons-expr-custom $child $h $t $h ()))
                       (($grandLiterals $grandChildren) (getLiteralChildren $childFirst))
                       ($allLiterals (collapse (getGuardSet (superpose $grandChildren))))
