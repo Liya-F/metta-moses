@@ -53,11 +53,10 @@
 ;;;;;;;;;;;;;;
 ; (: Table._transposeHelper (-> (List Number) (List (List $a)) (List (List $a))))
 (= (Table._transposeHelper $indices $table)
-    (unify $indices 
-        Nil Nil
-        (unify $indices (Cons $i $rest)
-            (Cons (Table.getColumn $i $table)
-                  (Table._transposeHelper $rest $table)) ())))
+    (eval (unify $indices Nil Nil
+        (if (= $indices (Cons $i $rest))
+            (Cons (eval (Table.getColumn $i $table))
+                    (Table._transposeHelper $rest $table)) ()))))
 
 ; (: Table.transpose (-> (List (List $a)) (List (List $a))))
 (= (Table.transpose $table)
@@ -296,11 +295,12 @@
     (if (= $countTuple ())
         $sum
         (let ($h $t) (decons-atom $countTuple) 
-                (eval (unify $h ($item $count)
-                    (chain (/ $count $totalCount) $p-i                                          ;; need a condition to skip calculation of log of 0 values
-                    (chain (if (== $p-i 0) $p-i (round (eval (log-math 2 $p-i)) 2)) $log-val    ;; might need to find new ways of calculating rounded values without python binding
-                        (chain (* $p-i $log-val) $product
-                            (entropy $t $totalCount (- $sum $product))))) ())))))
+                (eval (if (= $h ($item $count))
+                        (chain (/ $count $totalCount) $p-i                                          ;; need a condition to skip calculation of log of 0 values
+                            (chain (if (== $p-i 0) $p-i (round (eval (log-math 2 $p-i)) 2)) $log-val    ;; might need to find new ways of calculating rounded values without python binding
+                                (chain (* $p-i $log-val) $product
+                                    (entropy $t $totalCount (- $sum $product))))) 
+                        ())))))
 
 ;; filterTable -- filters table by removing features in $ft-to-remove
 
