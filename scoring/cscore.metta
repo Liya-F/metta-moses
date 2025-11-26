@@ -42,12 +42,11 @@
 ;; (:Cscore Type)
 ;; (:mkCscore (-> Number Number Number Number Number Cscore))
 
-;; (:updatePenalizedScore (-> Cscore Bool Cscore))
+; (: updatePenalizedScore (-> Cscore Bool Cscore))
 (= (updatePenalizedScore (mkCscore $scor $cpxy $cpxyPenalty $uniformityPenalty $penalizedScore) $multiplyDiversity)
     (let* (($temp (- $scor $cpxyPenalty))
-           ($updatedPScore (if $multiplyDiversity (* $temp $uniformityPenalty) (- $temp $uniformityPenalty)))
-        ;    ($_ (println! (PenalizedScore: $updatedPScore)))
-           )
+           ($updatedPScore (eval (if $multiplyDiversity (* $temp $uniformityPenalty) (- $temp $uniformityPenalty))))
+           ($_ (println! (PenalizedScore: $updatedPScore))))
         
             (mkCscore $scor $cpxy $cpxyPenalty $uniformityPenalty $updatedPScore)))
 ;converts a score to an expression
@@ -80,7 +79,7 @@
 
 
 ;; worstCscore
-;; (:worstCscore (-> Cscore))
+; (: worstCscore (-> Cscore))
 (= (worstCscore)
     (mkCscore (* -1 (pow-math 10 308)) 0 0.0 0.0 (* -1 (pow-math 10 308))))
 
@@ -92,19 +91,19 @@
 ;; (:getScore (-> Cscore Number))
 (= (getScore (mkCscore $scor $cpxy $complexityPenalty $uniformityPenalty $penalizedScore)) $scor)
 
-;; (:getComp (-> Cscore Number))
+; (: getComp (-> Cscore Number))
 (= (getComp (mkCscore $scor $cpxy $complexityPenalty $uniformityPenalty $penalizedScore)) $cpxy)
 
 ;; (:getCompPen (-> Cscore Number))
 (= (getCompPen (mkCscore $scor $cpxy $complexityPenalty $uniformityPenalty $penalizedScore)) $complexityPenalty)
 
-;; (:getUniPen (-> Cscore Number))
+; (: getUniPen (-> Cscore Number))
 (= (getUniPen (mkCscore $scor $cpxy $complexityPenalty $uniformityPenalty $penalizedScore)) $uniformityPenalty)
 
 ;; cScoreExpr< -- composite score less than operator for expressions
 ;; works directly with expressions using index-atom to extract scores
 ;; index 4 = penalized score, index 1 = complexity score
-;; (:cScoreExpr< (-> Expression Expression Bool))
+; (: cScoreExpr< (-> Expression Expression Bool))
 (= (cScoreExpr< (($scor $cpxy $complexityPenalty $uniformityPenalty $penalizedScore)) 
                     (($scor2 $cpxy2 $complexityPenalty2 $uniformityPenalty2 $penalizedScore2)))
     
@@ -113,7 +112,7 @@
             (or (< $penalizedScore $penalizedScore2) (and (== $penalizedScore $penalizedScore2) (> $cpxy $cpxy2)))))
             
 ;; Check for equality, to within floating-point error, EPSILON
-;; (:cScore== (-> Cscore Cscore Bool))
+; (: cScore== (-> Cscore Cscore Bool))
 (= (cScore== $cs1 $cs2)
     (let ($sL $cL $cpL $upL $pL $sR $cR $cpR $upR $pR) 
             ((getScore $cs1) (getComp $cs1) (getCompPen $cs1) (getUniPen $cs1) (getPenScore $cs1)
@@ -124,7 +123,7 @@
                     (and (isApproxEq $cpL $cpR) 
                         (and (isApproxEq $upL $upR) (isApproxEq $pL $pR)))))))
 
-;; (:cScore>= (-> Cscore Cscore Bool)) 
+; (: cScore>= (-> Cscore Cscore Bool)) 
 (= (cScore>= $cs1 $cs2)
     (let ($pl $pr $cl $cr) ((getPenScore $cs1) (getPenScore $cs2) (getComp $cs1) (getComp $cs2))
         (if (isnan-math $pl)

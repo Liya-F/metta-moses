@@ -25,7 +25,7 @@
 
 ;; OS.getByIndx -- get by index
 ;; (: OS.getByIdx (-> Number (OS $a) $a)) 
-(= (OS.getByIdx $idx NilOS) (Error $idx INDEX_ERROR))
+(= (OS.getByIdx $idx NilOS) (Error $idx "empty set/index out of range"))
 (= (OS.getByIdx $idx (ConsOS $x $xs)) 
     (if (== $idx 0)
         $x

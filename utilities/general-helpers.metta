@@ -700,11 +700,11 @@
 )
 
 ;; From a tuple (Pair) return the first element
-(: first (-> ($a $b) $a))
+; (: first (-> ($a $b) $a))
 (= (first ($a $b)) $a)
 
 ;; From a tuple (Pair) return the second element
-(: second (-> ($a $b) $b))
+; (: second (-> ($a $b) $b))
 (= (second ($a $b)) $b)
 
 ;; Converts a tuple of pairs into ordered multimap
@@ -1205,7 +1205,7 @@
 (= (assertAlphaEqual $A $B)
    (assert (=alpha $A $B)))
 
-;; (: unify (-> Expression Expression Expression Expression %Undefined%))
+; (: unify (-> Expression Expression Expression Expression %Undefined%))
 (= (unify $space $pattern $then $else)
    (if (is-space $space)
        (let $temp (cut)
@@ -1287,3 +1287,15 @@
         (car-atom (reverse (get-type $obj)))
     )
 )
+
+;; replicates MeTTaLog's union-atom builtin function, i.e., keeps one copy of items present in both lists
+(= (union-atom-set $a $b)
+   (if (= $b ())
+        $a
+        (let $b-new 
+            (collapse 
+                (let $bs (superpose $b) 
+                                    (if (is-member $bs $a)
+                                        (empty)
+                                        $bs))) 
+            (union-atom $a $b-new))))
