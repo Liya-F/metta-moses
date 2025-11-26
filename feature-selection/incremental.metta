@@ -83,8 +83,7 @@
     ;     )
     ;     $newResultSet
     ; )
- ;
-
+ 
 ;; Purpose: Find best subset with highest MI score
 ;; Parameters:
 ;;   $itable (ITable) → Input table
@@ -95,7 +94,6 @@
 ;(: findBestSubset (-> (ITable $a) (OS Expression) Expression Number (List Expression)))
 (= (findBestSubset $itable NilOS $currentBest $currentScore)
    (Cons $currentBest (Cons $currentScore Nil)))
-
 (= (findBestSubset $itable (ConsOS $subset $rest) $currentBest $currentScore)
      (chain (cachedMutualInformation $itable $subset) $score  
        (if (> $score $currentScore)
@@ -204,7 +202,9 @@
                             (if (or (isWithin $minThreshold $maxThreshold $epsilon) (== $resultSize $targetSize))
                                 $resultIndices
                                 (if (< $resultSize $targetSize)
+                                    ;; need more features lower the threshold
                                     (adaptiveSelection (mkITable $rows $labels) $targetSize $maxTerms $redundancyThreshold $minThreshold $meanThreshold $epsilon)
+                                    ;; too many features raise the threshold
                                     (adaptiveSelection (mkITable $rows $labels) $targetSize $maxTerms $redundancyThreshold $meanThreshold $maxThreshold $epsilon)
                                 )
                             )
