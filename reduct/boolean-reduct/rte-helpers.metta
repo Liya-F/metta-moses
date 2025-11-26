@@ -15,7 +15,7 @@
 ;; Example: (AND (NOT A) (NOT B) A) -> ( (NOT A) (NOT B) A)
 (= (getGuardSet $exp)
    (if (== (get-metatype $exp) Expression)
-    (let ($h $t) (decons-atom $exp)
+    (let ($h $t) (if (not (== $exp ())) (decons-atom $exp) (() ()))
       (eval (if-decons-expr-custom $exp $h $t
           (if (== $h OR)
               ()               
@@ -76,7 +76,9 @@
        (
          (() $exp)
          ((NOT $x) ())
-         ($else (if (== (get-metatype $exp) Expression) (collapse (filterChildren (superpose $exp))) ())))))
+         ($else (if (== (get-metatype $exp) Expression)
+                          (collapse (filterChildren (superpose $exp)))
+                          ())))))
 
 ;; A function to add a list of children to a given expression.
 ;; Example: input: $exp -> (AND A B (OR C D)), $children -> ((OR A B) (OR E F) (OR D))
@@ -136,7 +138,8 @@
             (
                 ($first (car-atom $nestedTuple))
                 ($tail (cdr-atom $nestedTuple))
-                ($common (collapse (intersection (superpose $tuple) (superpose $first)))))
+                ($common (intersection-atom $tuple $first)))
+
         (if (== $tail ())
             $common
             (findCommonLiterals $common $tail)))))
