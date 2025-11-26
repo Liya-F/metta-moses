@@ -58,7 +58,7 @@
 ;;            reference and it may also contain knobs if $d is 0
 ;;  $parentId: The location where the new node will be added.
 ;;  $d: The current setting of the knob.
-;; (:appendTo (-> (Tree $a) LogicalSubtreeKnob (Tree $a) NodeId Number (Tree $a)))
+; (: appendTo (-> (Tree $a) LogicalSubtreeKnob (Tree $a) NodeId Number (Tree $a)))
 (= (appendTo $updatedTree $lsk $tree $parentId $d)
     (let*
        (
