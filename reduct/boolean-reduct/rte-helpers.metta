@@ -76,7 +76,7 @@
        (
          (() $exp)
          ((NOT $x) ())
-         ($else (if (= (get-metatype $exp) Expression)
+         ($else (if (== (get-metatype $exp) Expression)
                           (collapse (filterChildren (superpose $exp)))
                           ())))))
 
