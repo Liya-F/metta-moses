@@ -1,1 +1,1 @@
-!(py-call (random-seed 42))
+!(py-call (random.seed 42))
