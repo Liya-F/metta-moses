@@ -36,7 +36,9 @@ def extract_and_print(result, path, idx) -> bool:
         )
 
     raw_passed = extracted.count("✅")
-    passed_asserts = min(raw_passed, total_asserts) # Cap passed asserts to total asserts to avoid redundancy
+    passed_asserts = min(
+        raw_passed, total_asserts
+    )  # Cap passed asserts to total asserts to avoid redundancy
 
     # Check for actual failures in the Petta Report
     has_failure = False  # Assume failure by default
@@ -60,6 +62,8 @@ def extract_and_print(result, path, idx) -> bool:
     print("-" * 40)
 
     return has_failure
+
+
 def run_test_file(test_file):
     try:
         # Create a clean environment with bash as default shell
@@ -72,7 +76,7 @@ def run_test_file(test_file):
             raise FileNotFoundError(f"{run_sh_path} not found")
 
         # Command to execute the test file
-        command = [run_sh_path, str(test_file)]
+        command = [run_sh_path, str(test_file), "-s"]
 
         # Run the command
         result = subprocess.run(
@@ -99,6 +103,7 @@ def run_test_file(test_file):
                 self.stderr = str(e)
 
         return MockResult(), test_file, True
+
 
 # Function to print ASCII art
 def print_ascii_art(text):
@@ -165,3 +170,4 @@ if fails > 0:
 if fails > 0:
     print(RED + "Tests failed. Process Exiting with exit code 1" + RESET)
     sys.exit(1)
+

@@ -16,10 +16,10 @@
      )
      (case $current
         (
-          ((OR (NOT $x)) ((addLiterals (removeElement ($current) $parent) ((NOT $x))) () True))
+          ((OR (NOT $x)) ((eval (addLiterals (eval (removeElement ($current) $parent)) ((NOT $x)))) () True))
           ((OR $x) (if (== (get-metatype $x) Symbol)
-                        ((addLiterals (removeElement ($current) $parent) ($x)) () True)
-                        ((addChildren (removeElement ($current) $parent) (getSubExpression $x)) () True)
+                        ((eval (addLiterals (eval (removeElement ($current) $parent)) ($x))) () True)
+                        ((eval (addChildren (eval (removeElement ($current) $parent)) (eval (getSubExpression $x)))) () True)
                     )
           )
           ($else ($parent $current False))
