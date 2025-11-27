@@ -67,12 +67,14 @@
 (= (cleanTree $tree)
     (let*
         (
-          ($preordered (preOrder $tree))
-          (() (println! (Preordered: $preordered)))
+          ($preordered (eval (preOrder $tree)))
+          ($_ (println! (Preordered: $preordered)))
           ($reduced (eval (reduce-to $preordered)))
-          (() (println! (Reduced: $reduced)))
+          ($_ (println! "After Reduce"))
+          ($_ (println! (Reduced: $reduced)))
           )
-        (buildTree $reduced)))
+        (buildTree $reduced))
+    )
 
 ;; Get an id of a certain node. And (0) if the root node.
 ;; Example:
