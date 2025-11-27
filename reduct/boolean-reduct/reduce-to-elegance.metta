@@ -52,8 +52,8 @@
                       ($updatedCurrent (cons-atom AND $updatedSubExpression))
                       ($updatedParent (eval (findAndReplace $current $updatedCurrent $parent)))
                       ; ((($oneSubsumeParent $oneSubsumeCurrent $appliedOneSubsume)) (oneConstraintSubsume $updatedParent $updatedCurrent $commandSet)) ;; Apply 1-Subsume.
-                      ($temp (oneConstraintSubsume $updatedParent $updatedCurrent $commandSet)) ;; Apply 1-Subsume.
-                      ; ($_ (println! (Result: $temp)))
+                      ($temp (eval (oneConstraintSubsume $updatedParent $updatedCurrent $commandSet))) ;; Apply 1-Subsume.
+                      ;($_ (println! (Result: $temp)))
                       ((($oneSubsumeParent $oneSubsumeCurrent $appliedOneSubsume)) $temp)
                       ; ($_ (println! (===RTE AND CASE Log===)))
                       ; ($_ (println! (GuardSet: $guardSet Children: $children UpdatedGuardSet: $updatedGuardSet UpdatedGuardSetPrime: $updatedGuardSet')))
@@ -76,7 +76,7 @@
                       ($childFromParent (if (== $updatedCurrent' ()) (cdr-atom $updatedParent') $updatedCurrent'))
                       ($zeroCurrent (let $h (car-atom $childFromParent) (if (== (get-metatype $h) Expression) $h $childFromParent)))
                       ; ($_ (println! (zeroCurrent: $zeroCurrent)))
-                      (($finalParent $finalCurrent $finalBool) (zeroConstraintSubsume' $updatedParent' $zeroCurrent)) ;; Apply 0-Subsume variation.
+                      (($finalParent $finalCurrent $finalBool) (eval (zeroConstraintSubsume' $updatedParent' $zeroCurrent))) ;; Apply 0-Subsume variation.
                       ($finalCurrent' (if (== $finalCurrent ()) (AND) $finalCurrent))
                       ; ($_ (println! (Final Result ==> FinalParent: $finalParent FinalCurrent: $finalCurrent' AppliedRTE: (eval (any ($appliedRedundantOr1CC $appliedOneSubsume $bool $finalBool))))))
                       ; ($_ (println! ""))
@@ -292,19 +292,19 @@
 ;; This function is specific for the OR node case of the reduce to elegance function.
 ; (: applyReduceToEleganceToOr (-> (Expression Expression (Expression Expression Bool) (Expression Expression)) (Expression Expression (Expression Expression Bool))))
 (= (applyReduceToEleganceToOr ($commandSet $dominantSet ($parent $prevCurrent $bool) ($currentChild $remainingChildren)))
-   (if (~= $currentChild ())
+   (if (not (== $currentChild ()))
        (let*
           (
               ; ($_ (println! (===Inside ApplyReduceToEleganceToOr===)))
               ; ($_ (println! (Parameters ==> CommandSet: $commandSet DominantSet: $dominantSet Parent: $parent PrevCurrent: $prevCurrent Bool: $bool CurrentChild: $currentChild RemainingChildren: $remainingChildren)))
               ; ($_ (println! ""))
 
-              ($localCommandSet (localCommandSet $currentChild (eval (getChildrenExp $prevCurrent)) (eval (getGuardSet $prevCurrent)) $commandSet)) ;; Compute local command set
+              ($localCommandSet (eval (localCommandSet $currentChild (eval (getChildrenExp $prevCurrent)) (eval (getGuardSet $prevCurrent)) $commandSet))) ;; Compute local command set
               ($nextChild (if (not (== $remainingChildren ())) (car-atom $remainingChildren) ()))
               ($restChildren (if (not (== $nextChild ())) (cdr-atom $remainingChildren) ()))
 
-              (($updatedCurrent $updatedChild $appliedRTE) (reduceToElegance $prevCurrent $currentChild $dominantSet $localCommandSet))
-              (($promoteCurrent $promoteChild $appliedPromote) (promoteCommonConstraints $updatedCurrent $updatedChild))
+              (($updatedCurrent $updatedChild $appliedRTE) (eval (reduceToElegance $prevCurrent $currentChild $dominantSet $localCommandSet)))
+              (($promoteCurrent $promoteChild $appliedPromote) (eval (promoteCommonConstraints $updatedCurrent $updatedChild)))
 
               ; ($_ (println! (Applied Promote ==> Current: $promoteCurrent Child: $promoteChild Applied: $appliedPromote)))
 
@@ -431,16 +431,16 @@
 (= (applyReduce ($parent $current $applied))
    (let*
          (
-            ($_ (println! (=== Inside ApplyReduce ===)))
+            ($_ (println! (==== Inside ApplyReduce ====)))
             ($_ (println! (Parameters ==> Parent: $parent Current: $current Applied: $applied)))
             
-            ($propNotExpr (propagateNot $current))
-            ($gatherJunctorExpr (gatherJunctors $propNotExpr))
-            ($initAdd (addAND $gatherJunctorExpr))
-            ($finalAdd (addAND $initAdd True))
-            ($finalParent (findAndReplace $current $finalAdd $parent))
+            ($propNotExpr (eval (propagateNot $current)))
+            ($gatherJunctorExpr (eval (gatherJunctors $propNotExpr)))
+            ($initAdd (eval (addAND $gatherJunctorExpr)))
+            ($finalAdd (eval (addAND $initAdd True)))
+            ($finalParent (eval (findAndReplace $current $finalAdd $parent)))
 
-           ($_ (println! (=== ApplyReduce Log ===)))
+           ($_ (println! (==== ApplyReduce Log ====)))
            ($_ (println! (PropNotExpr: $propNotExpr)))
            ($_ (println! (GatherJunctorsResult $gatherJunctorExpr)))
            ($_ (println! (Initial Add: $initAdd)))
@@ -450,4 +450,5 @@
          (reduceToElegance $finalParent $finalAdd () ())
          ))
          
-(= (reduce-to $expr) (let ($parent $uwnt $uwnt2) (eval (until reduceNotApplied applyReduce ($expr $expr True))) $parent))
+(= (reduce-to $expr) 
+   (let ($parent $uwnt $uwnt2) (eval (until reduceNotApplied applyReduce ($expr $expr True))) (let $_ (cut) $parent)))
