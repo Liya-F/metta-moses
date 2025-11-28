@@ -24,7 +24,7 @@
 ;; generalized foldl and foldr
 ;; considering potential transfomration of input values before applying a function over them
 ;; (= (id $x) $x)
-(= (exp2 $x) ($x))
+(= (toExp $x) ($x))
 ;;??? is the name List.tFoldl/tFoldr is better than List.t-foldl	
 (= (List.tFoldl Nil $f $t $acc) $acc)		
 (= (List.tFoldl (Cons $x $xs) $f $t $acc) (let $tr (eval ($t $x)) (let $new-acc ($f $acc $tr) (List.tFoldl $xs $f $t $new-acc))))		
