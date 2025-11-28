@@ -32,14 +32,14 @@
                 (AND
                   (let*
                     (
-                      ; ($_ (println! (===Inside RTE AND case===)))
+                      ;($_ (println! (===Inside RTE AND case===)))
                       ; ($_ (println! (Parameters ==> Parent: $parent Current: $current DominantSet: $dominantSet CommandSet: $commandSet)))
                       ; ; ($_ (println! ""))
 
                       ($guardSet (eval (getGuardSet $current)))
                       ; ($_ (println! (GuardSet of Current: $guardSet)))
                       ($children (eval (getChildrenExp $current)))
-                      ; ($_ (println! (Children of Current: $children)))
+                      ;($_ (println! (Children of Current: $children)))
 
                       ;; TODO: Replace the setDifference function with non deterministic functions
                       ($updatedGuardSet (eval (setDifference $guardSet $dominantSet))) ;; Apply Redundant to current
@@ -54,7 +54,7 @@
                       ; ((($oneSubsumeParent $oneSubsumeCurrent $appliedOneSubsume)) (oneConstraintSubsume $updatedParent $updatedCurrent $commandSet)) ;; Apply 1-Subsume.
                       ($temp (eval (oneConstraintSubsume $updatedParent $updatedCurrent $commandSet))) ;; Apply 1-Subsume.
                       ;($_ (println! (Result: $temp)))
-                      ((($oneSubsumeParent $oneSubsumeCurrent $appliedOneSubsume)) $temp)
+                      (($oneSubsumeParent $oneSubsumeCurrent $appliedOneSubsume) $temp)
                       ; ($_ (println! (===RTE AND CASE Log===)))
                       ; ($_ (println! (GuardSet: $guardSet Children: $children UpdatedGuardSet: $updatedGuardSet UpdatedGuardSetPrime: $updatedGuardSet')))
                       ; ($_ (println! (appliedRedundantOr1CC: $appliedRedundantOr1CC appliedOneSubsume: $appliedOneSubsume)))
@@ -87,12 +87,12 @@
                 (OR
                   (let*
                     (
-                    ;  ($_ (println! (===Inside RTE OR case===)))
-                    ;  ($_ (println! (Parameters ==> Parent: $parent Current: $current DominantSet: $dominantSet CommandSet: $commandSet)))
+                      ;  ($_ (println! (===Inside RTE OR case===)))
+                      ;  ($_ (println! (Parameters ==> Parent: $parent Current: $current DominantSet: $dominantSet CommandSet: $commandSet)))
 
                      (($promoteParent $promoteCurrent $appliedPromote) (eval (promoteCommonConstraints $parent $current))) ;; Apply promote
                      
-                    ;  ($_ (println! (Promote ==> Parent: $promoteParent Current: $current Applied: $appliedPromote)))
+                      ;  ($_ (println! (Promote ==> Parent: $promoteParent Current: $current Applied: $appliedPromote)))
 
                       ;;until no transformation is applied.
                       ;;    compute commandSet
@@ -121,7 +121,7 @@
 
 ;; A helper function to check if a transformation is applied or not given the state of the OR node transformations.
 ; (: transformationsNotApplied (-> (Expression Expression (Expression Expression Bool)) Bool))
-(= (transformationsNotApplied ($_ $__ ($parent $current $bool))) (not $bool))
+(= (transformationsNotApplied ($dummy $dummy2 ($parent $current $bool))) (not $bool))
 
 ;; A helper function to apply delInconHandle and andCut transformation functions.
 ;; It will also apply reduce to elegance algorithm on each of the children of the POA.
@@ -295,8 +295,8 @@
    (if (not (== $currentChild ()))
        (let*
           (
-              ; ($_ (println! (===Inside ApplyReduceToEleganceToOr===)))
-              ; ($_ (println! (Parameters ==> CommandSet: $commandSet DominantSet: $dominantSet Parent: $parent PrevCurrent: $prevCurrent Bool: $bool CurrentChild: $currentChild RemainingChildren: $remainingChildren)))
+             ; ($_ (println! (===Inside ApplyReduceToEleganceToOr===)))
+             ; ($_ (println! (Parameters ==> CommandSet: $commandSet DominantSet: $dominantSet Parent: $parent PrevCurrent: $prevCurrent Bool: $bool CurrentChild: $currentChild RemainingChildren: $remainingChildren)))
               ; ($_ (println! ""))
 
               ($localCommandSet (eval (localCommandSet $currentChild (eval (getChildrenExp $prevCurrent)) (eval (getGuardSet $prevCurrent)) $commandSet))) ;; Compute local command set
@@ -367,11 +367,11 @@
               ; ($_ (println! (Parameters ==> Child: $child ParentChildren: $parentChildren ParentGuardSet: $parentGuardSet CommandSet: $commandSet)))
               ;; ($_ (println! ""))
 
-              ($siblings (if (~= $parentChildren ())  (removeElement ($child) $parentChildren) ()))
-              ($filteredGuardSet (if (~= $parentGuardSet ()) (removeElement ($child) $parentGuardSet) ()))
-              ($filteredSiblings (if (~= $siblings ()) (collapse (filterTerminalAndNode (superpose $siblings))) ()))
-              ($siblingsGuardSet (if (~= $filteredSiblings ()) (collapse (getGuardSetND (superpose $filteredSiblings))) ()))
-              ($totalGuardSet (concatTuple $filteredGuardSet $siblingsGuardSet))
+              ($siblings (if (not (== $parentChildren ()))  (eval (removeElement ($child) $parentChildren)) ()))
+              ($filteredGuardSet (if (not (== $parentGuardSet ())) (eval (removeElement ($child) $parentGuardSet)) ()))
+              ($filteredSiblings (if (not (== $siblings ())) (collapse (eval (filterTerminalAndNode (superpose $siblings)))) ()))
+              ($siblingsGuardSet (if (not (== $filteredSiblings ())) (collapse (eval (getGuardSetND (superpose $filteredSiblings)))) ()))
+              ($totalGuardSet (eval (concatTuple $filteredGuardSet $siblingsGuardSet)))
               ; ($localCommandSet (collapse (unique (union (superpose $totalGuardSet) (superpose $commandSet)))))
               ($localCommandSet (unique-atom (union-atom $totalGuardSet $commandSet)))
               
@@ -447,7 +447,7 @@
            ($_ (println! (FinalAdd Result: $finalAdd)))
            ($_ (println! (FinalParent: $finalParent)))
         )
-         (reduceToElegance $finalParent $finalAdd () ())
+         (eval (reduceToElegance $finalParent $finalAdd () ()))
          ))
          
 (= (reduce-to $expr) 

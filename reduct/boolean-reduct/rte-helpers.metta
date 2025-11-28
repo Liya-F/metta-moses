@@ -77,7 +77,7 @@
          (() $exp)
          ((NOT $x) ())
          ($else (if (== (get-metatype $exp) Expression)
-                          (collapse (filterChildren (superpose $exp)))
+                          (collapse (eval (filterChildren (superpose $exp))))
                           ())))))
 
 ;; A function to add a list of children to a given expression.
@@ -112,7 +112,7 @@
        (
          (() $exp)
          ((NOT $x) $exp)
-         ($else (if (== (get-metatype $exp) Expression) (collapse (filterLiterals (superpose $exp))) $exp)))))
+         ($else (if (== (get-metatype $exp) Expression) (collapse (eval (filterLiterals (superpose $exp)))) $exp)))))
 
 ;; A function similar to getLiterals function but returns a
 ;;    non deterministic list instead of a collapsed atom.
