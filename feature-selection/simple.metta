@@ -9,7 +9,7 @@
 
 (= (simpleFeatureSelector $th $numDesired $expDist (mkITable $table $labels) $acc)
     (if (== $numDesired 0)
-        (0 (eval (List.listToExpr (inputLables $labels))))                                                  ;; return all features by default
+        ((0 (eval (List.listToExpr (inputLables $labels)))))                                                  ;; return all features by default
         (chain (eval (List.length $labels)) $colNum
             (chain (eval (List.length $table)) $rowNum
                 (chain (eval (Table.getColumn (- $colNum 1) $table)) $oc                                  ;; get the output column
@@ -17,7 +17,7 @@
                         (chain (if $expDist                                                                        ;; this is the actual selection after the scoring
                                     (chain (- 1 (/ 1 (+ $numDesired 1))) $mean                                      ;; if exponential distn is preferred 
                                         (exponentialSelection $mean $numDesired $selected-features 1 ()))
-                                    (takeN $numDesired $selected-features)) $final (0 (eval (map-atom $final ($mi-score ($feature)) $feature))))))))))
+                                    (takeN $numDesired $selected-features)) $final ((0 (eval (map-atom $final ($mi-score ($feature)) $feature)))))))))))
 
 
 ;; selectorIterator
