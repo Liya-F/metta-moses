@@ -1,4 +1,4 @@
-;; (: DiscMap Type)   
+  
 ;; (: DiscKnobMap Type)
 ;; (: mkDscMp (-> (MultiMap (DiscSpec $knob)) DiscMap))
 ;; (: mkDscKbMp (-> (Map (NodeId Number)) DiscKnobMap))
@@ -16,10 +16,10 @@
 (= (crtDiscKnobMap (mkDscMp (ConsMMap ($kbSpec $kb) $tail)) (mkDscKbMp $dkm) $index)
    (let*
    (
-    ($loc (getKnobLoc $kb))
-    ($updatedDkm (Map.insert ($loc $index) $dkm == nodeId<))
+    ($loc (eval (getKnobLoc $kb)))
+    ($updatedDkm (eval (Map.insert ($loc $index) $dkm == nodeId<)))
    ) 
-   (crtDiscKnobMap (mkDscMp $tail) (mkDscKbMp $updatedDkm) (+ $index 1))
+   (eval (crtDiscKnobMap (mkDscMp $tail) (mkDscKbMp $updatedDkm) (+ $index 1)))
   ))
 
 ;; representation constructor
@@ -47,58 +47,65 @@
             $scorerType         ;; can MI or precision_bscore
         )
         
-        (let*   (
+        (let* (
                   ($_ (println! (Inside Representation)))
-                  ($exemplar-fts (treeFtsIndices $exemplar $labels))           ;; exemplarFtsIndices function in deme/expand-deme.metta
-                 ($all-labels (getInputLabels $labels))                       ;; getInputLabels in deme/expand-deme.metta
-                                                                                                                            ;;Default Values  ;;miConf PrePenalty  PreMInActivation   PreMaxActivation  PrePositive   ScorerType
-                 ($ft-set-pop (featureSelector $ft-selection-algo (mkITable $table $labels) 0.0 $exemplar 2 2 False () False 2 False ja $nDeme 50.0   1.0            0.5               1.0               True         $scorerType))     ;; applies the right parameteres for feature selection based on selected selection algorithm 
+                  ($exemplar-fts (eval (treeFtsIndices $exemplar $labels))) 
+                  ($_ (println! (exemplar features $exemplar-fts)))          ;; exemplarFtsIndices function in deme/expand-deme.metta
+                 ($all-labels (eval (getInputLabels $labels)))                       ;; getInputLabels in deme/expand-deme.metta
+                 ($_ (println! "before featureSelector"))                                                                                                           ;;Default Values  ;;miConf PrePenalty  PreMInActivation   PreMaxActivation  PrePositive   ScorerType
+                 ($ft-set-pop (eval (featureSelector $ft-selection-algo (mkITable $table $labels) 0.0 $exemplar 2 2 False () False 2 False ja $nDeme 50.0   1.0            0.5               1.0               True         $scorerType)))     ;; applies the right parameteres for feature selection based on selected selection algorithm 
                  ($_ (println! (Selected Features after feature Selection $ft-set-pop)))
                  ($exemplar-arg-seq                                           ;; apply exemplar feature pruning
                      (if $prune-exemplar
                            (map-atom $ft-set-pop $ft-set 
                               (let* (($diff-ft (subtraction-atom $exemplar-fts $ft-set))
-                                     ($ft-names (fsToNames $labels $diff-ft))
-                                     ($pruned-xmplr (pruneExemplar $exemplar $ft-names))
+                                    ($_ (println! (diffffffff $diff-ft)))
+                                     ($ft-names (eval (fsToNames $labels $diff-ft)))
+                                     ($pruned-xmplr (eval (pruneExemplar $exemplar $ft-names)))
                                      ($final-args (subtraction-atom $ft-set $exemplar-fts)))  
 
-                                 ($pruned-xmplr (fsToNames $labels $final-args))))
+                                 ($pruned-xmplr (eval (fsToNames $labels $final-args)))))
                            
                            (map-atom $ft-set-pop $ft-set 
-                                 (let* (($agg (union-atom $ft-set $exemplar-fts))
-                                        ($final-args (fsToNames $labels $agg)))  
+                                 (let* (($agg (eval (union-atom-set $ft-set $exemplar-fts)))
+                                        ($final-args (eval (fsToNames $labels $agg)))
+                                        )  
                                         
                                     ($exemplar $final-args)))))
                   ($_ (println! (Exemplar arg sets after pruning: $exemplar-arg-seq))) 
                   ($with-enforced-fts                                         ;; enforce features
                      (if (== $enforced-fts ())
                            $exemplar-arg-seq
-                           (let $sampled-enforced-fts (sampleEnforcedFts $enforced-fts)           ;; from feature-selection/select-top-features.metta
+                           (let $sampled-enforced-fts (eval (sampleEnforcedFts $enforced-fts))           ;; from feature-selection/select-top-features.metta
                                     (map-atom $exemplar-arg-seq ($xmplr $args)
-                                             (let $acc (union-atom $args $sampled-enforced-fts) ($xmplr $acc))))))  
+                                             (let $acc (eval (concatT $args $sampled-enforced-fts)) ($xmplr $acc))))))  
                   ($_ (println! (With enforced features: $with-enforced-fts)))
                   ($filter-empty-args (filter-atom $with-enforced-fts ($xmplr $args) (eval (not (== $args ())))))
                   ($_ (println! (After filtering empty args: $filter-empty-args)))
-                  )      ;; filter out exemplar arg pairs that have empty arg list
+              )      ;; filter out exemplar arg pairs that have empty arg list
 
                      (map-atom $filter-empty-args ($xmplr $argLabels) 
-                           (let* ((($updatedTree $dscMp) (buildKnobs $xmplr NilMMap $argLabels))            ;; BUILD representations on 
-                                  ($dscKbMp (crtDiscKnobMap (mkDscMp $dscMp) (mkDscKbMp NilMap) 0)))        ;; MULITPLE args selected using the feature selection
+                           (let* (
+                                    ($_ (println! (Building representation for arg labels: $argLabels)))
+                                    (($updatedTree $dscMp) (trace! (" done buildknobs (:) ") (eval (buildKnobs $xmplr NilMMap $argLabels))))            ;; BUILD representations on 
+                                    ($_ (println! (Building representation for arg labels: $argLabels)))
+                                    ($_ (println! (updated tereeeeee dddddddddddd disc mappppp ($updatedTree $dscMp))))
+                                    ($_ (println! ""))
+                                  ($dscKbMp (eval (crtDiscKnobMap (mkDscMp $dscMp) (mkDscKbMp NilMap) 0))))        ;; MULITPLE args selected using the feature selection
                                  
                                  (mkRep (mkKbMap $dscKbMp (mkDscMp $dscMp)) $updatedTree)))))
-
 ;; (: getCandidate (-> Representation Instance (Tree $a)))
 (= (getCandidate $repObj $inst)
    ; (println! (inside getCandidate))
    (let*
       (
-         ; ($_ (println! (Inside getCandidate)))
+        ; ($_ (println! (Inside getCandidate)))
          ($parentid (mkNodeId (0)))
          ($srcid (mkNodeId (0)))
          ; ($_ (println! ($parentid   $srcid)))
          ($candidate (getCandidateRec $repObj $inst $parentid $srcid (mkNullVex Nil)))
          ; ($_ (println! (Found candidate: $candidate)))
-         ($cleanedTree $candidate)
+         ($cleanedTree (eval (cleanTree $candidate)))
          ; ($_ (println! (Cleaned Tree: $cleanedTree)))
       )
       $cleanedTree
@@ -136,41 +143,47 @@
 
 (= (getCandidateRec (mkRep $knobMapObj $tree) (mkInst $inst) $parentId $srcId $candidate)
    ; (trace! (Inside getCandidateRec with parentId: $parentId, srcId: $srcId) ())
-   (let $knobIdxPair (findDiscKnob $knobMapObj $srcId) 
-      (if (~= (second $knobIdxPair) -1)
+   (let $knobIdxPair (eval (findDiscKnob $knobMapObj $srcId)) 
+      (if (not (== (eval (second $knobIdxPair)) -1))
          (let*
             (
-               ($_ (println! (Inside getCandidateRec with parentId: $parentId , srcId: $srcId)))
-               ; ($_ (println! (Evaluating Instance: $inst : (second $knobIdxPair))))
-               ($d (List.getByIdx $inst (second $knobIdxPair)))
-               ; ($_ (println! (KnobIdPari: $knobIdxPair)))
-               ($updatedCnd (appendTo $tree (first $knobIdxPair) $candidate $parentId $d))
+               ($_ (println! (I_________________nside getCandidateRec with parentId: $parentId , srcId: $srcId)))
+               ($_ (println! (Evaluating Instance: $inst : (second $knobIdxPair))))
+               ($d (eval (List.getByIdx $inst (eval (second $knobIdxPair)))))
+               ($_ (println! (KnobIdPari: $knobIdxPair $d)))
+               ($updatedCnd (eval (appendTo $tree (eval ( first $knobIdxPair)) $candidate $parentId $d)))
+               ($_ (println! (UpdatedCnd: $updatedCnd)))
             )
             $updatedCnd
          )
          (let*
             (
                ; ($_ (println! (Inside getCandidateRec with parentId: $parentId , srcId: $srcId)))
+               ($_ (println! ""))
                ($_ (println! (No Knob found just copy...)))
-               ($src (getNodeById $tree $srcId))
-               ; ($_ (println! (starting to appendChild...)))
-               ($cndChIdPair (appendChild $candidate $parentId (mkTree (getNodeValue $src) Nil)))
-               ; ($_ (println! (Getting children of source node...)))
-               ; ($_ (println! (CNC pair: $cndChIdPair)))
-               ($srcChildren (getChildren $src))
-               ; ($_ (println! (SRC children: $srcChildren)))
-               ; ($_ (println! (Folding over children...)))
-               ($state (List.foldl applyGetCandidateRec ((mkRep $knobMapObj $tree) (mkInst $inst) (second $cndChIdPair) (first $cndChIdPair) 1) $srcChildren))
-               ; ($_ (println! (State: $state)))
-               (((mkRep $knobMapObj $tree) (mkInst $inst) $newParentId $finalCnd $_) $state)
-               ; ($_ (println! (FinalCnd: $finalCnd)))
+               ($src (eval (getNodeById $tree $srcId)))
+                ($_ (println! (starting to appendChild... $src)))
+               ($_ (println! ("append parameters__________________ " $candidate $parentId $src)))
+               ($cndchidpair (eval (appendChild $candidate $parentId (mkTree (eval (getNodeValue $src)) Nil))))
+               ($_ (println! (getting children of source node...)))
+               ($_ (println! (cnc pair: $cndchidpair)))
+               ($srcchildren (eval (getChildren $src)))
+               ($_ (println! (src children: $srcchildren)))
+               ($_ (println! (folding over children...)))
+               ($_ (println! ("tree____ " $tree)))
+               ($_ (println! ("the parameters are:" ((mkRep $knobMapObj $tree) (mkInst $inst) (eval (second $cndchidpair)) (eval (first $cndchidpair)) 1) $srcchildren)))
+               ($state (eval (List.foldl applyGetCandidateRec ((mkRep $knobMapObj $tree) (mkInst $inst) (eval (second $cndchidpair)) (eval (first $cndchidpair)) 1) $srcchildren)))
+               ($_ (println! (state: $state)))
+               (((mkRep $knobmapobj $tree) (mkInst $inst) $newparentid $finalcnd $d) $state)
+               ($_ (println! (finalcnd: $finalcnd)))
+               ($_ (println! ""))
+
             )
-            $finalCnd
-         )
-      )
+              $finalcnd
+          )
    )
 )
-
+)
 
 ;; (: applyGetCandidateRec (-> (Tree $a)
 ;;                             (Representation Instance NodeId (Tree $a) Number)
@@ -181,15 +194,16 @@
 ;       ($repObj $inst (mkNodeId $parentId) $updatedCnd (+ 1 $chIdx)))))
 
 
-(= (applyGetCandidateRec $_ ($repObj $inst (mkNodeId $parentId) $candidate $chIdx))
+(= (applyGetCandidateRec $tr ($repObj $inst (mkNodeId $parentId) $candidate $chIdx))
    (let*
       (
-         ; ($_ (println! (applyGetCandidateRec called with parentId: $parentId , chIdx: $chIdx)))
-         ($srcId (if (== $parentId (0)) (mkNodeId ($chIdx)) (mkNodeId (unionAtom $parentId ($chIdx)))))
-         ; ($_ (println! (srcId: $srcId)))
-         ($updatedCnd (getCandidateRec $repObj $inst (mkNodeId $parentId) $srcId $candidate))
-         ; ($_ (println! (updatedCnd: $updatedCnd)))
+         ($_ (println! ("applyGetCandidateRec called with parentId:" $parentId , chIdx: $chIdx)))
+         ($srcId (if (== $parentId (0)) (mkNodeId ($chIdx)) (mkNodeId (eval (concatT $parentId ($chIdx))))))
+         ($_ (println! (srcId: $srcId)))
+         ($updatedCnd (eval (getCandidateRec $repObj $inst (mkNodeId $parentId) $srcId $candidate)))
+         ($_ (println! (updatedCnd: $updatedCnd)))
          ($finalResult ($repObj $inst (mkNodeId $parentId) $updatedCnd (+ 1 $chIdx)))
+         ($_ (println! ("applyGetCandidateRec returning finalResult:" $finalResult)))
       )
       $finalResult
    )
