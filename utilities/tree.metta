@@ -312,25 +312,25 @@
 
 (= (extractArgsFromList Nil) Nil)
 (= (extractArgsFromList (Cons $head $tail))
-    (List.appendList (extractArgsFromList $tail) (extractArgs $head)))   
+    (eval (List.appendList (eval (extractArgsFromList $tail)) (extractArgs $head))))   
 
 ;; treeFtsIndices -- extract integer indices of literals used in a tree
 (= (treeFtsIndices $exemplar $labels)
-    (let* (($exemplar-labels (extractArgs $exemplar))
-            ($arg-set (List.tFoldl $exemplar-labels union-atom exp ())))
+    (let* (($exemplar-labels (eval (extractArgs $exemplar)))
+            ($arg-set (eval (List.tFoldl $exemplar-labels concatT exp2 ()))))
             
-            (map-atom $arg-set $arg (List.index $labels $arg))))     
+            (map-atom $arg-set $arg (eval (List.index $labels $arg)))))     
 
 
 (= (pruneExemplar $exemplar $arg-set)
-    (foldl-atom $arg-set $exemplar $acc $arg (removeLiteral $acc $arg)))   
+    (foldl-atom $arg-set $exemplar $acc $arg (eval (removeLiteral $acc $arg))))   
     
 
 ; (: removeLiteral (-> (Tree $a) Symbol (Tree $a)))
 
 (= (removeLiteral (mkTree (mkNode $node) $children) $symbol)
     (if (is-member $node (AND OR NOT))
-        (mkTree (mkNode $node) (List.mapOverArg removeLiteral $children $symbol))
+        (mkTree (mkNode $node) (eval (List.mapOverArg removeLiteral $children $symbol)))
         (if (== $node $symbol)
             Nil
             (mkTree (mkNode $node) Nil))))
