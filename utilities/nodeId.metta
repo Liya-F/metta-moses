@@ -21,11 +21,11 @@
 (= (getLevelById (mkTree (mkNode $r) $children) $levelId)
    (if (== $levelId 0)
        (mkTree (mkNode $r) $children)
-       (List.getByIdx $children (- $levelId 1))))
+       (eval (List.getByIdx $children (- $levelId 1)))))
 (= (getLevelById (mkNullVex $children) $levelId)
    (if (== $levelId 0)
        (mkNullVex $children)
-       (List.getByIdx $children (- $levelId 1))))
+       (eval (List.getByIdx $children (- $levelId 1)))))
 (= (getLevelById Nil $levelId) Nil)
 
 ;; Traverses a tree to find a node by its ID path.
@@ -43,7 +43,7 @@
       ;  (() (println! (getNodeById called with id: $id)))
       ;  (() (println! (getNodeById called with Tree: $tree)))
        (($head $tail) (decons-atom $id))
-       ($level (getLevelById $tree $head))
+       ($level (eval (getLevelById $tree $head)))
      )
      (if (== $tail ())
      
@@ -51,9 +51,9 @@
           (let*
               (
                (($nextHead $nextTail) (decons-atom $tail))
-               ($nextLevel (getLevelById $level $nextHead))
+               ($nextLevel (eval (getLevelById $level $nextHead)))
               )
-              (getNodeById $nextLevel (mkNodeId $nextTail))
+              (eval (getNodeById $nextLevel (mkNodeId $nextTail)))
           ))
    )
 )
