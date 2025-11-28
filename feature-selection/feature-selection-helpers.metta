@@ -250,7 +250,7 @@
     (if (== $expr ())
         $acc
         (chain (size-atom $expr) $len
-            (chain (random-int 0 (- $len 1)) $rnd-index ;; by using py-atom bound rnd function from general-helpers
+            (chain (py-call (random.randint 0 (- $len 1))) $rnd-index ;; by using py-atom bound rnd function from general-helpers
                 (chain (index-atom $expr $rnd-index) $val
                 (chain (cons-atom $val $acc) $new-acc
                     (chain (subtraction-atom $expr ($val)) $rem ;; if we are certain that a pattern is never repeated in the original expression
