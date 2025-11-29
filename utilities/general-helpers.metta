@@ -1,5 +1,7 @@
 ;; Helper functions that are going to be useful for writing any metta code
 !(bind! perf_counter (new-state (py-call "time.perf_counter")))
+!(py-call (random.seed 0))
+
 (= (round $x)(py-call ("round" $x)))    ;; python method calling is py-call unlike py-atom in mettalog 
 
 ;; Measures the average execution time of a given expression over multiple runs.
@@ -134,7 +136,7 @@
     ;   )
       (if (== () (subtraction-atom $old $list)) 
         $new
-      (collapse (replace $old $new (superpose $list))))
+      (collapse (eval (replace $old $new (superpose $list)))))
     ; )
 )
 
@@ -144,7 +146,7 @@
 (= (until $predicate $function $x) 
     (let* ( 
         ; (() (println! (Inside until with function: $function ...)))
-        ($isTrue ($predicate $x))
+        ($isTrue (eval ($predicate $x)))
         ; (() (println! (Predicate result: $isTrue)))
         ; ($x' ($function $x))
         ($x' (if (== $isTrue true) ("Predicate True Skipping Function Application") ($function $x)))
@@ -152,7 +154,7 @@
     )
     (if (== $isTrue true)
         $x
-        (until $predicate $function $x'))
+        (eval (until $predicate $function $x')))
     ))
 ;; A foldleft function like the implementation in Haskell.
 ;; It takes a binary function that expects two atoms and
@@ -211,7 +213,7 @@
 
 ;; A function to remove all elements found in $common from a $tuple
 (= (removeElement $common $tuple)
-   (collapse (subtraction (superpose $tuple) (superpose $common))))
+   (collapse  (subtraction (superpose $tuple) (superpose $common))))
 
 ; ;; A function that returns True if any of the input atoms are True and False otherwise
 ; ;; Example: input ==> (True True False), output ==> True
@@ -715,10 +717,10 @@
 (let*
 (
     (($head $tail) (decons-atom $tuple))
-    ($updatedMap (MultiMap.insert $head $map $compFunc))
+    ($updatedMap (eval (MultiMap.insert $head $map $compFunc)))
 
 )
-(if (== $tail ()) $updatedMap (expToMMap $tail $updatedMap $compFunc))))
+(if (== $tail ()) $updatedMap (eval (expToMMap $tail $updatedMap $compFunc)))))
 
 ;; A trick function to make chain reduce when using union-atom
 ;; This is causing infinite loop in some cases. use the direct union-atom instead.
@@ -810,7 +812,7 @@
 (: randomFloat (-> Number))
 (= (randomFloat)(py-call ("random.random")))
 !(bind! rnd (py-atom random))
-!((py-dot rnd seed) 0)
+
 
 ;; ============================================================
 ;; Apply Function — restricted to value comparisons only
