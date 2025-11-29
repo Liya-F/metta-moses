@@ -494,10 +494,10 @@
 
 
 ; failing test case will be solved soon 
-; !(println! ("testing: treeFtsIndices"))
-; !(assertEqual (treeFtsIndices (mkTree (mkNode A) Nil) (Cons A (Cons B (Cons C (Cons O Nil))))) (0))
-; !(assertEqual (treeFtsIndices (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) Nil)) (Cons A (Cons B (Cons C (Cons O Nil)))))	(0))
-; !(assertEqual (treeFtsIndices (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) (Cons (mkTree (mkNode B) Nil) (Cons (mkTree (mkNode C) Nil) Nil)))) (Cons A (Cons B (Cons C (Cons O Nil))))) (0 1 2))	
+!(println! ("testing: treeFtsIndices"))
+!(assertEqual (treeFtsIndices (mkTree (mkNode A) Nil) (Cons A (Cons B (Cons C (Cons O Nil))))) (0))
+!(assertEqual (treeFtsIndices (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) Nil)) (Cons A (Cons B (Cons C (Cons O Nil)))))	(0))
+!(assertEqual (treeFtsIndices (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) (Cons (mkTree (mkNode B) Nil) (Cons (mkTree (mkNode C) Nil) Nil)))) (Cons A (Cons B (Cons C (Cons O Nil))))) (0 1 2))	
 
 !(println! ("testing: removeLiteral"))
 !(assertEqual (removeLiteral
@@ -526,4 +526,3 @@
 
 !(assertEqual (pruneExemplar (mkTree (mkNode AND) (Cons (mkTree (mkNode A) Nil) (Cons (mkTree (mkNode B) Nil) Nil))) (A B)) 
            (mkTree (mkNode AND) Nil))
- 
