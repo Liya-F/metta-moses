@@ -48,12 +48,12 @@
             ;     (mkTree (mkNode $head) (exprToList (map buildTree $tail))))
             ; (mkTree (mkNode $expr) Nil)
             (let* (
-              ($_ (println! (-----------------------)))
-              ($_ (println! (Inside buildTree with expr: $expr)))
+              ;; ($_ (println! (-----------------------)))
+              ;; ($_ (println! (Inside buildTree with expr: $expr)))
               (($head $tail) (decons-atom $expr))
               ($children (eval (exprToList (map buildTree $tail))))
-              ($_ (println! (Building tree with head: $head And children: $children)))
-              ($_ (println! (FinalAnswer: (mkTree (mkNode $head) $children))))
+              ;; ($_ (println! (Building tree with head: $head And children: $children)))
+              ;; ($_ (println! (FinalAnswer: (mkTree (mkNode $head) $children))))
             )
             (mkTree (mkNode $head) $children)
             )
@@ -73,7 +73,7 @@
           ($_ (println! "After Reduce"))
           ($_ (println! (Reduced: $reduced)))
           )
-        (buildTree $reduced))
+        (eval (buildTree $reduced)))
     )
 
 ;; Get an id of a certain node. And (0) if the root node.

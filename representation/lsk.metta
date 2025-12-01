@@ -13,23 +13,23 @@
 (= (logicalSubtreeKnob $tree (mkNodeId $target) $subtree)
    (let*
    (
-    ($negatedSubtree (insertAbove $subtree (mkNode NOT)))
-    ; ($_ (println! (NegatedSubtree : $negatedSubtree)))
-    ($reducedSubtree  $negatedSubtree) ;; (cleanTree $negatedSubtree))  FIX uncomment after the reduct refactor to petta 
-    ; ($_ (println! (ReducedSubtree: $reducedSubtree))) 
+    ($negatedSubtree (eval (insertAbove $subtree (mkNode NOT))))
+    ($_ (println! (NegatedSubtree----------------- : $negatedSubtree)))
+    ($reducedSubtree (eval (cleanTree $negatedSubtree))  )
+    ($_ (println! (ReducedSubtree---------------: $reducedSubtree))) 
     ($childrenOfTarget (eval (getChildrenById $tree (mkNodeId $target))))
    )
    (if (== True (eval (List.contains $subtree $childrenOfTarget) ))
-       (let $idOfSubtree (getSubtreeId $tree (mkNodeId $target) $subtree 0)
+       (let $idOfSubtree (eval (getSubtreeId $tree (mkNodeId $target) $subtree 0))
            ($tree (mkLSK (mkDiscKnob (mkKnob (updateID $idOfSubtree)) (mkMultip 3) (mkDiscSpec 1) (mkDiscSpec 1) Nil)))
        )
        (if (== True (eval (List.contains $reducedSubtree $childrenOfTarget)))
-           (let $idOfReducedSubtree (getSubtreeId $tree (mkNodeId $target) $reducedSubtree 0)
+           (let $idOfReducedSubtree (eval (getSubtreeId $tree (mkNodeId $target) $reducedSubtree 0))
                 ($tree (mkLSK (mkDiscKnob (mkKnob (updateID $idOfReducedSubtree)) (mkMultip 3) (mkDiscSpec 1) (mkDiscSpec 1) Nil))))
            (let*
            (
-            (($nullVexAppendedTree $nullVexId) (appendChild $tree (mkNodeId $target) (mkNullVex Nil)))
-            (($subtreeAppendedTree $subtreeId) (appendChild $nullVexAppendedTree $nullVexId $subtree))
+            (($nullVexAppendedTree $nullVexId) (eval (appendChild $tree (mkNodeId $target) (mkNullVex Nil))))
+            (($subtreeAppendedTree $subtreeId) (eval (appendChild $nullVexAppendedTree $nullVexId $subtree)))
            )
            ($subtreeAppendedTree (mkLSK (mkDiscKnob (mkKnob (updateID $nullVexId)) (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) Nil)))
            )
@@ -63,12 +63,13 @@
     (let*
        (
         ; ($_ (println! (lsk: $lsk)))
-        ($targetId (getNodeId $lsk))
-        ($targetTree (getNodeById  $updatedTree $targetId))
-        ($subtree (if (== True (isNullVertex $targetTree) )
+        ($targetId (eval (getNodeId $lsk)))
+        ($targetTree (eval (getNodeById  $updatedTree $targetId)))
+        ($subtree (if (== True (eval (isNullVertex $targetTree) ))
                         (let (mkNullVex (Cons $child Nil)) $targetTree $child)
                         $targetTree
                     ))        
+        ($_ (println! ("subtree ": $subtree $targetTree)))
       )
       (if (> $d 2)
           (Error $d "Invalid disc specification:- cannot exceed 2.")
