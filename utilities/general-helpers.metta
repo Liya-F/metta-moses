@@ -739,7 +739,7 @@
 ;; (: genList (-> Number Expression))
 (= (genList $u) (genList 0 $u))
 ;;
-(: genList (-> Number Number Expression))
+; (: genList (-> Number Number Expression))
 (= (genList $l $u)
     (if (< $u $l)
         ()
