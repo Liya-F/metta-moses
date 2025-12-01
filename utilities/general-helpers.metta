@@ -266,7 +266,7 @@
 (= (update-atom $space $oatom $natom) (let $_ (remove-atom $space $oatom) (add-atom $space $natom)))
 
 ;; Function to replace a given atom from a space. ;; FIX: No longer working on version 0.2.3
-(: appendAtom (-> Atom Atom Atom))
+;; (: appendAtom (-> Atom Atom Atom))
 (= (appendAtom $a $atom) (foldr cons-atom ($a) $atom))
 
 ; ;; Return the maximum of two numbers.; this may raise a conflict with petta's builtin max function
