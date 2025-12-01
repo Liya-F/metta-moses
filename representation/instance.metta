@@ -194,7 +194,7 @@
 ; Params:
 ;   $instLength — number of elements in the instance.
 ; Returns: List of integers (0–2) representing one instance.
-(: generateRandomInstance (-> Number List))
+;; (: generateRandomInstance (-> Number List))
 (= (generateRandomInstance $instLength)
    (if (== $instLength 0)
        Nil

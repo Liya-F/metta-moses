@@ -146,32 +146,35 @@
 ;;      If not, check if no crossover was made and if so increase the distance by 1.
 ;;      If it is the first time through the loop, we should not exit but we should set the distance to 1 and retry the iteration.
 
-(: hillclimbing (-> Deme (TruthTableBScore $a) Instance (-> Deme (TruthTableBScore $a) Instance $Scorer (Instance Deme $state))))
+;; (: hillClimbing (-> Deme (TruthTableBScore $a) Instance (-> Deme (TruthTableBScore $a) Instance $Scorer (Instance Deme $state))))
 (= (hillClimbing $POASet $tTableBscorer $centerInst) 
-    (hillClimbing $POASet $tTableBscorer $centerInst (applyComplexityBasedScore ())))
+    (hillClimbing $POASet $tTableBscorer $centerInst (mkParams applyComplexityBasedScore ())))
     
-(: hillclimbing (-> Deme (TruthTableBScore $a) Instance $Scorer (Instance Deme $state)))
-(= (hillClimbing $POASet $tTableBscorer $centerInst ($scorer $FsScorer))
-  (case $scorer
-    ((applyComplexityBasedScore
+;; (: hillClimbing (-> Deme (TruthTableBScore $a) Instance $Scorer (Instance Deme $state)))
+;; $FsScorer should be passed using a `mkScorer` constructor other wise it will cause an error in PeTTa.
+(= (hillClimbing $POASet $tTableBscorer $centerInst (mkParams $scorer $FsScorer))
+  (case (mkParams $scorer)
+    (((mkParams applyComplexityBasedScore)
         (let*
-          (($disc (getDisk $POASet))
-            (($cpxCoeff $size $iTable) (getTTableParams $tTableBscorer)))
-          (hillClimbing (1 3 0) (False False False $centerInst (worstCscore) (* -1 (pow-math 10 308)) 0 0 1) 
+          (
+            ($disc (getDisk $POASet))
+            (($cpxCoeff $size $iTable) (getTTableParams $tTableBscorer))
+          )
+          (hillClimbing (1 3 0) (False False False $centerInst (worstCscore) (* -1 (pow-math 10 308)) 0 0 1)
                         $POASet
                         ($disc $cpxCoeff $size $iTable)
                         $centerInst
                         ()
-                        estimateNeighborhood crossover 
+                        estimateNeighborhood crossover
                         sampleNewInstances transform)))
-      (applyMutualInformationBasedScore
+      ((mkParams applyMutualInformationBasedScore)
         (let*
           (
-            (() (println! $tTableBscorer))
+            ($_ (println! $tTableBscorer))
             (($rows $labels) (getITableParams $tTableBscorer))
-            (() (println! (iTable: $tTableBscorer)))
-            (() (println! (Rows: $rows)))
-            (() (println! (Labels: $labels)))
+            ($_ (println! (iTable: $tTableBscorer)))
+            ($_ (println! (Rows: $rows)))
+            ($_ (println! (Labels: $labels)))
             ($FsScorerType (if (== $FsScorer ()) mi $FsScorer))
           )
           (hillClimbing (3 3 1) (False False False $centerInst 0 0 0 0 1) 
@@ -186,7 +189,7 @@
 
 
 (= (hillClimbing ($maxDist $minXoverNeighbors $bestPossibleScore) ;; Constant parameters
-                 ($alreadyXover $lastChance $_ $prevCenter $bestSscore $bestScore $currentNInstances $d $i)
+                 ($alreadyXover $lastChance $__ $prevCenter $bestSscore $bestScore $currentNInstances $d $i)
                  $POASet
                  ($neighborhood $rowOCoeff $size $iTable)
                  $centerInst
