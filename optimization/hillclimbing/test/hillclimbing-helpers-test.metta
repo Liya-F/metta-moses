@@ -15,13 +15,9 @@
 !(import! &self ../../../utilities/pair) 
 !(import! &self ../../../utilities/nodeId)
 !(import! &self ../../../utilities/list-methods)
-;;!(import! &self metta-moses:utilities:python-helpers);; commented out because not compatibel with mettalog
 !(import! &self ../../../utilities/general-helpers)
 !(import! &self ../../../utilities/ordered-multimap)
-; !(import! &self ../../../utilities/python-treehelpers)
 !(import! &self ../../../utilities/lazy-random-selector)
-
-; !(import! &self ../../../reduct/enf)
 
 !(import! &self ../../../deme/score-deme)
 !(import! &self ../../../deme/create-deme)
@@ -39,13 +35,6 @@
 !(import! &self ../hill-climbing-helpers)
 !(import! &self ../../../feature-selection/feature-selection-helpers)
 !(import! &self ../cross-top-one-helpers)
-
-(= (ARGS) args) 
-(= (APPEND_CHILD $tree $nodeId $child ) (py_appendChild $tree $nodeId $child))
-
-(= (GetByID $tree $nodeId) (py_getById $tree $nodeId))
-(= (INSERT_ABOVE $tree $nodeId $subtree) (py_insertAbove  $tree $nodeId $subtree))
-;; (= (pyExprToList $expr) (py_exprToList $expr))
 
 (= (knobmap1)
         (ConsMMap (
@@ -203,20 +192,21 @@
 ; (: isScored (-> (ScoredInstance Cscore) Bool))
 (= (isScored (mkSInst (mkPair $instance $score))) (~= $score (worstCscore)))
 
-        !(hillclimbing test ----------)
+!(hillclimbing test ----------)
 !(assertEqual
    (let*
      (
-       (($instance (mkDeme $rep (mkSInstSet $instSet) $id) $state) (hillClimbing (deme) (table1) (mkInst (Cons 0 (Cons 0 Nil)))))
+       (($instance (mkDeme $rep (mkSInstSet $instSet) $id) $state) (hillClimbing (deme) (table1) (mkInst (Cons 0 (Cons 0 Nil))) (mkParams applyComplexityBasedScore ())))
        ($instanceCount (eval (List.length $instSet)))
        ($scoredElems (eval (List.map isScored $instSet)))
      )
      ((>= $instanceCount 4) (eval (List.any $scoredElems))))
    (True True))
+
 !(assertEqual
    (let*
      (
-       (($instance (mkSInstSet $instSet) $state) (hillClimbingFs (mkSInstSet Nil) (itable) (mkInst (Cons 1 (Cons 0 Nil))) mi))
+       (($instance (mkSInstSet $instSet) $state) (hillClimbing (mkSInstSet Nil) (itable) (mkInst (Cons 1 (Cons 0 Nil))) (mkParams applyMutualInformationBasedScore mi)))
        ($instanceCount (eval (List.length $instSet)))
        ($scoredElems (eval (List.map isScored $instSet)))
      )

@@ -266,7 +266,7 @@
 (= (update-atom $space $oatom $natom) (let $_ (remove-atom $space $oatom) (add-atom $space $natom)))
 
 ;; Function to replace a given atom from a space. ;; FIX: No longer working on version 0.2.3
-(: appendAtom (-> Atom Atom Atom))
+;; (: appendAtom (-> Atom Atom Atom))
 (= (appendAtom $a $atom) (foldr cons-atom ($a) $atom))
 
 ; ;; Return the maximum of two numbers.; this may raise a conflict with petta's builtin max function
@@ -645,7 +645,7 @@
        )))
 
 ;; Number compartor
-(: compareNum (-> Number Number Atom))
+;; (: compareNum (-> Number Number Atom))
 (= (compareNum $num1 $num2)
     (case ((> $num1 $num2) (== $num1 $num2))
         (((True $t) G)
@@ -654,7 +654,7 @@
 
 ;; an equal to or grearter than comparator that is resopnsible for deconstructing numerical values from the type constructor and compare them 
 ;; ($ctor $x) ($ctor $y) -- (constructor value) pair                
-(: >>= (-> $a $a Bool))
+;; (: >>= (-> $a $a Bool))
 (= (>>= ($ctor $x) ($ctor $y))(>= $x $y));; List.Sum for any (List $a) $a of (typeConstructor Number) type
 ;;
 ;; the following is defined in list-methods.metta as well
@@ -675,7 +675,7 @@
 ;;           ($ctor $b): The second argument with the same constructor as the first
 ;;   returns: Sum of the types if they both contain numbers
 ;;            An error if they can't be added together
-(: add (-> $a $a $a))
+;; (: add (-> $a $a $a))
 (= (add ($ctor $a) ($ctor $b))
      (if (== (get-type $a) Number)
             ($ctor (+ $a $b))
@@ -791,17 +791,17 @@
 ;; it happens that the NaN representation in mettalog is the weird 1.5NaN
 ;; you will see this when binig "Not a Number" from pythons "float('nan')" 1.5NaN is what it returns
 ;; needed because using using the direct python binding appears to cause issue with git workflow
-(: isnan (-> $a Bool))
+;; (: isnan (-> $a Bool))
 (= (isnan $x) (== $x 1.5NaN))
 
 ;; isInf -- check if a number if Inf
 ;; the same applies to this weid looking 1.0Inf thing - it is what you get when you bind (py-atom "float ('inf')") in mettalog and the followingn function works 
-(: isInf (-> $a Bool))
+;; (: isInf (-> $a Bool))
 (= (isInf $x) (== $x 1.0Inf))
 
 ;; int -- replicates pythons int functionality -- convert floating point numbers into integer
 ;; uses -- metta's floor-math function
-(: int (-> Number Number))
+;; (: int (-> Number Number))
 (= (int $x) (if (>= $x 0) (floor-math $x) (+ 1 (floor-math $x))))
 
 !(bind! EXP (new-state 2.71828))
@@ -809,7 +809,7 @@
 ; ;; random float  -- fake rnd number [0 1]
 !(bind! maxInt (new-state (pow-math 2 64))) ;; pseudo max integer not really the max integer that can be represented 
 ;; the idea is to divide a random int taken from 0 upto this number by this number
-(: randomFloat (-> Number))
+;; (: randomFloat (-> Number))
 (= (randomFloat)(py-call ("random.random")))
 !(bind! rnd (py-atom random))
 
@@ -1156,6 +1156,7 @@
 
     ))
 
+
 ; this is to replace the built-in if-decons-expr which will depricate in future on mettalog
 ; it is used to deconstruct an expression into head and tail and then use them in the then expression
 ; if the expression is empty it will use the else expression
@@ -1301,3 +1302,18 @@
                                         (empty)
                                         $bs))) 
             (union-atom $a $b-new))))
+
+; Returns a random integer (0, 1, or 2) biased toward 0.
+; ~50% chance to return 0, otherwise randomly 1 or 2.
+;; (: biasedRandomInt (-> Number))
+(= (biasedRandomInt)
+   (if (== (random-int 0 2) 0)  ; 50% chance
+       0
+       (random-int 1 3)))      ; 1 or 2
+
+; Custom implementation of the ceiling function
+; Param: $num – the input number (may be fractional)
+; Returns: The smallest integer greater than or equal to $num.
+; (: ceilMath (-> Number Number))
+(= (ceilMath $num)
+(+ (floor-math $num) (if (> $num (floor-math $num)) 1 0)))
