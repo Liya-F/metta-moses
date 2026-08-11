@@ -3,8 +3,7 @@
         $acc
         (let ($h $t) (decons-atom $bs)
             (if (== $h E)
-                (let $carry (union-atom $acc ($counter))
-                    (get-empty-cells $t $carry (+ $counter 1)))
+                (get-empty-cells $t (cons-atom $counter $acc) (+ $counter 1))
                 (get-empty-cells $t $acc (+ $counter 1))))))
 
 (=  (replace-by-index $bs $icon $index)
@@ -16,30 +15,31 @@
                     (cons-atom $icon $t)
                     (let $rest (replace-by-index $t $icon (- $index 1))
                         (cons-atom $h $rest)))))))
-;; all the winning states encoded as patterns             
-(= (winning-states) ((($x $x $x $a $b $c $d $e $f) $x) 
-                    (($a $b $c $x $x $x $d $e $f) $x)
-                    (($a $b $c $d $e $f $x $x $x) $x) 
-                    (($x $a $b $x $c $d $x $e $f) $x)
-                    (($a $x $b $c $x $d $e $x $f) $x)
-                    (($a $b $x $c $d $x $e $f $x) $x)
-                    (($x $a $b $c $x $d $e $f $x) $x)
-                    (($a $b $x $c $x $d $x $e $f) $x)
-                )) 
+;; Add all the winning states encoded as patterns to the Atomspace
+!(add-atom &self (winning-pattern (($x $x $x $a $b $c $d $e $f) $x)))
+!(add-atom &self (winning-pattern (($a $b $c $x $x $x $d $e $f) $x)))
+!(add-atom &self (winning-pattern (($a $b $c $d $e $f $x $x $x) $x)))
+!(add-atom &self (winning-pattern (($x $a $b $x $c $d $x $e $f) $x)))
+!(add-atom &self (winning-pattern (($a $x $b $c $x $d $e $x $f) $x)))
+!(add-atom &self (winning-pattern (($a $b $x $c $d $x $e $f $x) $x)))
+!(add-atom &self (winning-pattern (($x $a $b $c $x $d $e $f $x) $x)))
+!(add-atom &self (winning-pattern (($a $b $x $c $x $d $x $e $f) $x)))
 
 (= (get-winner $board) 
-    (let $states (winning-states) 
-        (let $result (collapse (let $state (superpose $states) (if (= $state ($board $x)) (if (= $x E) (empty) $x) (empty))))
-            (if (= $result ())
-                E
-                (car-atom $result)))))  
+    (let $result (collapse (match &self (winning-pattern ($board $x)) (if (== $x E) (empty) $x)))
+        (if (== $result ())
+            E
+            (car-atom $result))))  
 
 ;; Returns 10 if player wins, -10 if opponent wins, 0 otherwise
 (= (evaluate-board $bs $player $opponent)
-   (let $w (get-winner $bs) 
-      (if (== $w $player) 10
-      (if (== $w $opponent) -10
-      0))))
+    (let $cached (collapse (match &self (eval-cache $bs $player $val) $val))
+        (if (not (== $cached ()))
+            (car-atom $cached)
+            (let $w (get-winner $bs)
+                (let $score (if (== $w $player) 10 (if (== $w $opponent) -10 0))
+                        (let $_ (add-atom &self (eval-cache $bs $player $score))
+                            $score))))))
 
 ;; Switcher
 (= (get-opponent $icon)

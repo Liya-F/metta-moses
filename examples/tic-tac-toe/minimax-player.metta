@@ -37,20 +37,25 @@
 ;; ---------------------------------------------------------
 
 (= (minimax $bs $isMax $player $opponent)
-   (let $score (evaluate-board $bs $player $opponent)
-     ;; BASE CASE: If game over (someone won), return score
-     (if (not (== $score 0))
-         $score
-         ;; BASE CASE: If board full (draw), return 0
-         (let $empty-cells (get-empty-cells $bs () 0) 
-            (if (== $empty-cells ())
-                0
-                ;; RECURSIVE STEP
-                (if $isMax
-                    ;; Maximizer's turn (Player)
-                    (run-minimax-loop $bs $empty-cells -1000 True $player $opponent)
-                    ;; Minimizer's turn (Opponent)
-                    (run-minimax-loop $bs $empty-cells 1000 False $player $opponent)))))))      
+   (let $cached (collapse (match &self (minimax-cache $bs $isMax $player $val) $val))
+        (if (not (== $cached ()))
+            (car-atom $cached)
+            (let $score (evaluate-board $bs $player $opponent)
+                 ;; BASE CASE: If game over (someone won), return score
+                 (if (not (== $score 0))
+                     $score
+                     ;; BASE CASE: If board full (draw), return 0
+                     (let $empty-cells (get-empty-cells $bs () 0) 
+                        (if (== $empty-cells ())
+                            0
+                            ;; RECURSIVE STEP
+                            (let $res (if $isMax
+                                          ;; Maximizer's turn (Player)
+                                          (run-minimax-loop $bs $empty-cells -1000 True $player $opponent)
+                                          ;; Minimizer's turn (Opponent)
+                                          (run-minimax-loop $bs $empty-cells 1000 False $player $opponent))
+                                 (let $_ (add-atom &self (minimax-cache $bs $isMax $player $res))
+                                      $res)))))))))      
 
 ;; Helper to loop through moves inside the recursive Minimax
 (= (run-minimax-loop $bs $candidates $best-val $isMax $player $opponent)

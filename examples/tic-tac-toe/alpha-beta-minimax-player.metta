@@ -32,17 +32,33 @@
 ;; ---------------------------------------------------------
 ;; CORE MINIMAX (Alpha-Beta)
 ;; ---------------------------------------------------------
-
+;; Alpha-Beta Minimax with Atomspace Transposition Cache
 (= (minimax $bs $isMax $alpha $beta $player $opponent)
-   (let $score (evaluate-board $bs $player $opponent)
-     (if (not (== $score 0))
-         $score
-         (let $empty-cells (get-empty-cells $bs () 0)
-            (if (== $empty-cells ())
-                0
-                (if $isMax
-                    (run-max-loop $bs $empty-cells -1000 $alpha $beta $player $opponent)
-                    (run-min-loop $bs $empty-cells 1000 $alpha $beta $player $opponent)))))))
+    (let $cached (collapse (match &self (minimax-cache $bs $isMax $player $val) $val))
+        (if (not (== $cached ()))
+            (car-atom $cached)
+            ;; Cache miss, compute the value
+            (let $score (evaluate-board $bs $player $opponent)
+                (if (not (== $score 0))
+                    $score
+                    (let $empty-cells (get-empty-cells $bs () 0)
+                        (if (== $empty-cells ())
+                            0
+                            (let $res (if $isMax
+                                        (run-max-loop $bs $empty-cells -1000 $alpha $beta $player $opponent)
+                                        (run-min-loop $bs $empty-cells 1000 $alpha $beta $player $opponent))
+                                ; Store the result in the cache for future reference in Atomspace
+                                (let $_ (add-atom $self (minimax-cache $bs $isMax $player $res)) 
+                                    $res)))))))))
+;    (let $score (evaluate-board $bs $player $opponent)
+;      (if (not (== $score 0))
+;          $score
+;          (let $empty-cells (get-empty-cells $bs () 0)
+;             (if (== $empty-cells ())
+;                 0
+;                 (if $isMax
+;                     (run-max-loop $bs $empty-cells -1000 $alpha $beta $player $opponent)
+;                     (run-min-loop $bs $empty-cells 1000 $alpha $beta $player $opponent))))))
 
 ;; Maximizer Loop
 (= (run-max-loop $bs $candidates $best-val $alpha $beta $player $opponent)
