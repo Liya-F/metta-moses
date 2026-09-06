@@ -86,8 +86,6 @@
 ;;   $context: Scoring context (ITable for Boolean, tuple for Strategy)
 ;;   $optimize: Optimizer function
 ;; Returns: Optimized deme with scored instances
-(= (getDscMpFromRep (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree)) $disc)
-(= (getDscMpFromRep (mkRep (mkKbMap (mkDscMp $disc)) $tree)) $disc)
 
 (= (expandDemeSpaceHelper $demeSpace $context $optimize)
 (let*

@@ -347,8 +347,6 @@
 ;;   $centerInst: Reference instance for distance calculations.
 ;;   $deme: Deme
 ;;   $dist: Distance from $centerInst for sampling/generating instances.
-(= (getDscMpFromRep (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree)) $disc)
-(= (getDscMpFromRep (mkRep (mkKbMap (mkDscMp $disc)) $tree)) $disc)
 
 ;; Returns:
 ;;   (Deme Number) - Tuple of updated Deme with new scored instances appended and number of new instances added.

@@ -6,6 +6,7 @@
 !(import! &self ../../utilities/lazy-random-selector)
 !(import! &self ../../representation/instance)
 !(import! &self ../../representation/knob-representation)
+!(import! &self ../../representation/representation)
 
 !(import! &self ../../scoring/cscore)
 !(import! &self ../../optimization/hillclimbing/hill-climbing-helpers) ;; using / for additional nested dir level 

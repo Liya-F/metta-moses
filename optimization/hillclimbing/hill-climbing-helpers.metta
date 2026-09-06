@@ -182,8 +182,7 @@
        (mkSInst $inst2)
        (mkSInst $inst1)))
 
-(= (getDisk (mkDeme (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree) $instSet $id)) $disc)
-(= (getDisk (mkDeme (mkRep (mkKbMap (mkDscMp $disc)) $tree) $instSet $id)) $disc)
+(= (getDisk $rep) (getDiskfromRep $rep))
 
 (= (getDiskfromRep (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree)) $disc)
 (= (getDiskfromRep (mkRep (mkKbMap (mkDscMp $disc)) $tree)) $disc)
@@ -463,9 +462,16 @@
    (if (== $opts ()) $init 0))
 (= (getInitDiscSpec (mkSSK (mkDiscKnob $k $m (mkDiscSpec $init) $cur $opts))) $init)
 
-;; Helper to initialize center instance from deme
-;; Creates an instance with knobs set to their initial disc specs
-(= (initCenterInst (mkDeme (mkRep (mkKbMap $kbMp (mkDscMp $disc)) $tree) $instSet $id))
+(= (initCenterInst (mkRep (mkKbMap $kbMp (mkDscMp $disc)) $tree))
    (let $knobList (MultiMap.values $disc)
      (let $initSpecs (List.map getInitDiscSpec $knobList)
        (mkInst $initSpecs))))
+(= (initCenterInst (mkRep (mkKbMap (mkDscMp $disc)) $tree))
+   (let $knobList (MultiMap.values $disc)
+     (let $initSpecs (List.map getInitDiscSpec $knobList)
+       (mkInst $initSpecs))))
+(= (initCenterInst $demeSpace)
+   (if (is-space $demeSpace)
+       (let $rep (match $demeSpace (mkRep $k $t) (mkRep $k $t))
+         (initCenterInst $rep))
+       (Error $demeSpace "Invalid DemeSpace")))

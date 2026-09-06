@@ -239,7 +239,8 @@
 ; Returns: The final optimized and sorted instance set after completing all generations.
 ; (: univariateMainLoop (-> (InstanceSet $score) Number Number Number Number Cscore Cscore Representation (ITable $a) Number (InstanceSet $score)))
 (= (univariateMainLoop $sortedSInstSet $genCount $maxGensTotal $nSelect $nGenerate $bestPossibleCscore $bestCscore $rep $id $itable $complexityRatio)
-(if (and (< $genCount $maxGensTotal) (apply < $bestCscore $bestPossibleCscore))
+(if (and (< $genCount $maxGensTotal) (< (getPenScore $bestCscore) (getPenScore $bestPossibleCscore)))
+
 (let*
   (
     ;; ($_ (println! (~~~~Generation~~~~ $genCount)))
@@ -264,18 +265,19 @@
     ;; ($_ (println! (Scored Generated New Instances:  $scoredGeneratedInstSet)))
     ($finalInstSet (replaceTheWorst $sortedSInstSet $scoredGeneratedInstSet))
     ;; ($_ (println! (Replaced Worst Instances:  $finalInstSet)))
-    ((mkSInstSet $sortedFinalInstSet) (sortDeme (mkSInstSet $finalInstSet)))
+    ($sortedFinalDeme (sortDeme (mkSInstSet $finalInstSet)))
+    ($sortedFinalInstSet (let (mkSInstSet $s) $sortedFinalDeme $s))
     ;; ($_ (println! (Sorted Final Instance Set:  $sortedFinalInstSet)))
     ($bestCurrentScore (getSInstScore (List.getByIdx $sortedFinalInstSet 0)))
   )
-  (univariateMainLoop (mkSInstSet $sortedFinalInstSet) (+ $genCount 1) $maxGensTotal $nSelect $nGenerate $bestPossibleCscore $bestCurrentScore $rep $id $itable $complexityRatio)
+  (univariateMainLoop $sortedFinalDeme (+ $genCount 1) $maxGensTotal $nSelect $nGenerate $bestPossibleCscore $bestCurrentScore $rep $id $itable $complexityRatio)
 )
 $sortedSInstSet
 ))
 
-; Performs the optimization phase for a given deme (population).
+; Performs the optimization phase for a given demeSpace.
 ; Params:
-;   (mkDeme $rep $instSet $id) – the deme to optimize
+;   $demeSpace – the deme atomspace to optimize
 ;   $itable – input table
 ;   $complexityRatio – complexity ratio
 ;   $nSelect – number of individuals to select per generation
@@ -283,22 +285,27 @@ $sortedSInstSet
 ;   $maxGensTotal – maximum number of generations to run
 ;   $bestPossibleCscore – ideal (target) best score
 ;   $bestCscore – current best score (initially worst)
-; Returns: A new deme containing the optimized and sorted instance set.
-; (: univariateOptimize (-> Deme (ITable $a) Number Number Number Number Cscore Cscore Deme))
-(= (univariateOptimize (mkDeme $rep $instSet $id) $itable $complexityRatio $nSelect $nGenerate $maxGensTotal $bestPossibleCscore $bestCscore)
+; Returns: The updated demeSpace with optimized instances added.
+; (: univariateOptimize (-> Space (ITable $a) Number Number Number Number Cscore Cscore Space))
+(= (univariateOptimize $demeSpace $itable $complexityRatio $nSelect $nGenerate $maxGensTotal $bestPossibleCscore $bestCscore)
 (let*
    (
+    ($rep (match $demeSpace (mkRep $repKbMp $tree) (mkRep $repKbMp $tree)))
+    ($id (let $returnn (match $demeSpace (mkDemeId $dmid) (mkDemeId $dmid)) (if (== $returnn (mkDemeId ())) () $returnn)))
+    ($instSet (match $demeSpace (mkSInstSet $list) (mkSInstSet $list)))
     ($sInstSet (transform $instSet $rep $id $itable $complexityRatio))
     ($sortedSInstSet (sortDeme $sInstSet))
     ($finalInstSet (univariateMainLoop $sortedSInstSet 0 $maxGensTotal $nSelect $nGenerate $bestPossibleCscore $bestCscore $rep $id $itable $complexityRatio))
+    ($_ (remove-atom $demeSpace $instSet))
+    ($_ (add-atom $demeSpace $finalInstSet))
    )
-   (mkDeme $rep $finalInstSet $id)))
+   $demeSpace))
 
 ;; Initializes and starts the univariate optimization process.
 ;; Computes generation and population parameters, creates a random initial population,
-;; and calls the univariate optimizer to evolve the population.
+;; and calls the univariate optimizer to evolve the population within the demeSpace.
 ;; Params:
-;;   (mkDeme ...) – initial deme
+;;   $demeSpace – deme space handle
 ;;   $itable – input table
 ;;   $complexityRatio – complexity ratio
 ;;   $popSizeRatio – ratio to determine population size
@@ -306,17 +313,41 @@ $sortedSInstSet
 ;;   $replacementRatio – ratio of individuals to replace each generation
 ;;   $bestPossibleCscore  – target best possible score
 ;; Returns:
-;;   A deme evolved through univariate optimization with the best-found instances.
-; (: univariate (-> Deme (ITable $a) Number Number Number Number Cscore Deme))
-(= (univariate (mkDeme (mkRep (mkKbMap (mkDscMp $disc)) $tree) (mkSInstSet $instSet) $id) $itable $complexityRatio $popSizeRatio $selectionRatio $replacementRatio $bestPossibleCscore)
+;;   The updated demeSpace evolved through univariate optimization.
+; (: univariate (-> Space (ITable $a) Number Number Number Number Cscore Space))
+(= (univariate $demeSpace $itable $complexityRatio $popSizeRatio $selectionRatio $replacementRatio $bestPossibleCscore)
 (let* (
+        ($rep (match $demeSpace (mkRep $repKbMp $tree) (mkRep $repKbMp $tree)))
+        ($disc (getDscMpFromRep $rep))
         ($maxGensTotal (informationTheoreticBits $disc))
         ($popSize (ceilMath (* $popSizeRatio (pow-math $maxGensTotal 1.05))))
         ($nSelect (floor-math (* $selectionRatio $popSize)))
         ($nGenerate (floor-math (* $replacementRatio $popSize)))
-        ($randPopDeme (mkDeme (mkRep (mkKbMap (mkDscMp $disc)) $tree) (mkSInstSet (generateInitialSample (Map.length $disc) $popSize)) $id))
+        ($oldInstSet (match $demeSpace (mkSInstSet $list) (mkSInstSet $list)))
+        ($initialSample (mkSInstSet (generateInitialSample (Map.length $disc) $popSize)))
+        ($_ (remove-atom $demeSpace $oldInstSet))
+        ($_ (add-atom $demeSpace $initialSample))
       ) 
-      (univariateOptimize $randPopDeme $itable $complexityRatio $nSelect $nGenerate $maxGensTotal $bestPossibleCscore (worstCscore))))
+      (univariateOptimize $demeSpace $itable $complexityRatio $nSelect $nGenerate $maxGensTotal $bestPossibleCscore (worstCscore))))
+
+;; Optimizer interface wrapper matching hillClimbing / simulated-annealing signature
+;; Params:
+;;   $demeSpace: Deme space handle
+;;   $tTableBscorer: TruthTableBScore
+;;   $initCenter: Initial center instance
+;; Returns: ($bestCenter $demeSpace $state)
+(= (univariate $demeSpace $tTableBscorer $initCenter)
+   (let* (
+           (($cpxCoeff $size $iTable) (getTTableParams $tTableBscorer))
+           ($popSizeRatio 1.0)
+           ($selectionRatio 0.5)
+           ($replacementRatio 0.5)
+           ($bestPossibleCscore (worstCscore))
+           ($optimizedDeme (univariate $demeSpace $iTable $cpxCoeff $popSizeRatio $selectionRatio $replacementRatio $bestPossibleCscore))
+           ((mkSInstSet $finalInstList) (match $demeSpace (mkSInstSet $s) (mkSInstSet $s)))
+           ($bestInst (if (== $finalInstList ()) $initCenter (getInst (first $finalInstList))))
+         )
+         ($bestInst $demeSpace (True False False $bestInst 0 0 (worstCscore) 0 0 0 0))))
 
 
 
