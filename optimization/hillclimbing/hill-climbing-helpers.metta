@@ -182,10 +182,8 @@
        (mkSInst $inst2)
        (mkSInst $inst1)))
 
-; (= (getDisk (mkDeme (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree) $instSet $id)) $disc)
-; (= (getDisk (mkDeme (mkRep (mkKbMap (mkDscMp $disc)) $tree) $instSet $id)) $disc)
-
-(= (getDisk $demeSpace) (if (is-space $demeSpace) (let (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree) (match $demeSpace (mkRep $kbmp $tree) (mkRep $kbmp $tree)) $disc) (Error $demeSpace "Invalid Deme")))
+(= (getDisk (mkDeme (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree) $instSet $id)) $disc)
+(= (getDisk (mkDeme (mkRep (mkKbMap (mkDscMp $disc)) $tree) $instSet $id)) $disc)
 
 (= (getDiskfromRep (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree)) $disc)
 (= (getDiskfromRep (mkRep (mkKbMap (mkDscMp $disc)) $tree)) $disc)
@@ -267,7 +265,8 @@
       ((mkParams applyStrategyBasedScore)
         (let*
           (
-            ($disc (getDisk $POASet))
+            ($representation (match $POASet (mkRep $kbmp $tree) (mkRep $kbmp $tree)))
+            ($disc (getDiskfromRep $representation))
             (($nGames $complexityRatio) $FsScorer)
             ;; $tTableBscorer is the scalar `$maxScore` for the strategy path
             ;; (was a Cscore struct before the termination switched to scalar).
@@ -466,14 +465,7 @@
 
 ;; Helper to initialize center instance from deme
 ;; Creates an instance with knobs set to their initial disc specs
-; (= (initCenterInst (mkDeme (mkRep (mkKbMap $kbMp (mkDscMp $disc)) $tree) $instSet $id))
-;    (let $knobList (MultiMap.values $disc)
-;      (let $initSpecs (List.map getInitDiscSpec $knobList)
-;        (mkInst $initSpecs))))
-(= (initCenterInst $demeSpace)
-    (if (is-space $demeSpace)
-      (let (mkRep (mkKbMap $kbMp (mkDscMp $disc)) $tree) (match $demeSpace  (mkRep $kbmp $tree) (mkRep $kbmp $tree))
-        (let $knobList (MultiMap.values $disc)
-          (let $initSpecs (List.map getInitDiscSpec $knobList)
-            (mkInst $initSpecs))))
-      (Error $demeSpace "Invalid Deme")))
+(= (initCenterInst (mkDeme (mkRep (mkKbMap $kbMp (mkDscMp $disc)) $tree) $instSet $id))
+   (let $knobList (MultiMap.values $disc)
+     (let $initSpecs (List.map getInitDiscSpec $knobList)
+       (mkInst $initSpecs))))
