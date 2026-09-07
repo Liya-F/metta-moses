@@ -19,7 +19,18 @@
 !(import! &self ../../../feature-selection/feature-selection-helpers)
 !(import! &self ../../../representation/representation)
 !(import! &self ../../../representation/create-representation)
+!(import! &self ../../../reduct/boolean-reduct/rte-helpers)
+!(import! &self ../../../reduct/boolean-reduct/cut-unnecessary-or)
+!(import! &self ../../../reduct/boolean-reduct/cut-unnecessary-and)
+!(import! &self ../../../reduct/boolean-reduct/n-ary-propagate-not)
+!(import! &self ../../../reduct/boolean-reduct/n-ary-gather-junctors)
+!(import! &self ../../../reduct/boolean-reduct/delete-inconsistent-handle)
+!(import! &self ../../../reduct/boolean-reduct/zero-constraint-subsumption)
+!(import! &self ../../../reduct/boolean-reduct/one-constraint-subsumption)
+!(import! &self ../../../reduct/boolean-reduct/promote-common-constraints)
+!(import! &self ../../../reduct/boolean-reduct/reduce-to-elegance)
 
+!(import! &self ../../../scoring/cacheSpace)
 !(import! &self ../../../scoring/fitness)
 !(import! &self ../../../scoring/bscore)
 !(import! &self ../../../scoring/cscore)
@@ -39,7 +50,11 @@
 
 !(import! &self ../../../optimization/univariate/univariate)
 
-(= (deme) (mkDeme (mkRep (mkKbMap (mkDscMp (((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ()) )) ((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())))))) (mkTree (mkNode AND) (cons (mkKnob (mkNullVex (cons (mkTree (mkNode A) ()) ())) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 0) (cons (mkKnob (mkNullVex (cons (mkTree (mkNode B) ()) ())) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 1) ())))) (mkSInstSet ()) (mkDemeId "1")))
+!(bind! &uniDeme (new-space))
+!(add-atom &uniDeme (mkRep (mkKbMap (mkDscMp (((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ()))) ((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())))))) (mkTree (mkNode AND) ((mkKnob (mkNullVex ((mkTree (mkNode A) ()))) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 0) (mkKnob (mkNullVex ((mkTree (mkNode B) ()))) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 1)))))
+!(add-atom &uniDeme (mkSInstSet ()))
+!(add-atom &uniDeme (mkDemeId "1"))
+
 (= (table1) (mkITable
                          (cons (cons False (cons False (cons False ()))) 
                          (cons (cons True (cons False (cons False ()))) 
@@ -75,8 +90,9 @@
 ;; Therefore, until the transform function is fixed, this test case remains commented out.
 
 !(assertEqual
-    (let (mkDeme $rep (mkSInstSet $instSet) $id) 
-         (univariate (deme) (table1) 2.0 1 0.5 0.5 (mkCscore -0.1 2 0.1 0.1 3))          
-         (== (List.length $instSet) 7)) True)
+  (let $optDeme (univariate &uniDeme (table1) 2.0 1 0.5 0.5 (mkCscore -0.1 2 0.1 0.1 3))
+    (let $instSet (match &uniDeme (mkSInstSet $s) $s)
+      (== (List.length $instSet) 7)))
+  True)
 
 

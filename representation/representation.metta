@@ -6,6 +6,9 @@
 ;; (: Representation Type)
 ;; (: mkRep (-> KnobMap (Tree $a) Representation)) 
 
+(= (getDscMpFromRep (mkRep (mkKbMap $kbMap (mkDscMp $disc)) $tree)) $disc)
+(= (getDscMpFromRep (mkRep (mkKbMap (mkDscMp $disc)) $tree)) $disc)
+
 ;; helper function to representation
 ;; Converts DiscMap (multimap of knobSpec & knob) to DiscKnobMap (map of location & index)
 ;; Params: DiscMap

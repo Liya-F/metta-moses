@@ -160,6 +160,7 @@
     )
 (<= (* 3 $totalSize) (* 4 $generatedSize))) True)
 
+!(bind! &deme1 (new-space))
 !(add-atom &deme1 (mkRep (mkKbMap (mkDscMp (((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ()) )) ((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())))))) (mkTree (mkNode AND) ( (mkKnob (mkNullVex ((mkTree (mkNode A) ()))) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 0) (mkKnob (mkNullVex ((mkTree (mkNode B) ()))) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 1)))))
 !(add-atom &deme1 (mkSInstSet ()))
 !(add-atom &deme1 (mkDemeId "1"))
@@ -193,6 +194,7 @@
      ((>= $instanceCount 4) (List.any $scoredElems)))
 (True True))
 
+!(bind! &deme2 (new-space))
 !(add-atom &deme2 (mkRep () ()))
 !(add-atom &deme2 (mkSInstSet ()))
 !(add-atom &deme2 (mkDemeId ()))
@@ -219,27 +221,33 @@
   (or (== $instance $bestInst) (<= (- (getPenScore $bestScore) -5) 0.5))
 ) True)
 
-;; deme for strategy hill climbing
-;; INFO: Uncomment once the strategy refactor is done.
-;; (= (strategyDeme)
-;;    (mkDeme 
-;;      (mkRep 
-;;        (mkKbMap 
-;;          (mkDscKbMp (cons ((mkNodeId (1)) 0) (cons ((mkNodeId (2)) 1) ())))
-;;          (mkDscMp 
-;;            (cons ((mkDiscSpec 2) 
-;;                       (mkSSK (mkDiscKnob (mkKnob (mkNodeId (1))) (mkMultip 2) (mkDiscSpec 1) (mkDiscSpec 1) ())))
-;;              (cons ((mkDiscSpec 2) 
-;;                         (mkSSK (mkDiscKnob (mkKnob (mkNodeId (2))) (mkMultip 2) (mkDiscSpec 1) (mkDiscSpec 1) ())))
-;;                ()))))
-;;        (mkTree (mkNode PRIORITIZED-OR) 
-;;          (cons (mkTree (mkNode playwin) ()) 
-;;                (cons (mkTree (mkNode playblock) ()) ()))))
-;;      (mkSInstSet ())
-;;      (mkDemeId "1")))
-;;
-;; !(assertEqual (hillClimbing (strategyDeme) (mkCscore 3.0 5 1.43 0.0 3) (mkInst (cons 1 (cons 1 ()))) (mkParams applyStrategyBasedScore (3 3.5))
-;; ) ((mkInst (1 1)) (mkDeme (mkRep (mkKbMap (mkDscKbMp (((mkNodeId (1)) 0) ((mkNodeId (2)) 1))) (mkDscMp (((mkDiscSpec 2) (mkSSK (mkDiscKnob (mkKnob (mkNodeId (1))) (mkMultip 2) (mkDiscSpec 1) (mkDiscSpec 1) ()))) ((mkDiscSpec 2) (mkSSK (mkDiscKnob (mkKnob (mkNodeId (2))) (mkMultip 2) (mkDiscSpec 1) (mkDiscSpec 1) ())))))) (mkTree (mkNode PRIORITIZED-OR) ((mkTree (mkNode playwin) ()) (mkTree (mkNode playblock) ())))) (mkSInstSet ((mkSInst (mkPair (mkInst (0 1)) (mkCscore -3.0 1 0.2857142857142857 0.0 -3.2857142857142856))) (mkSInst (mkPair (mkInst (1 1)) (mkCscore -3.0 2 0.5714285714285714 0.0 -3.571428571428571))) (mkSInst (mkPair (mkInst (0 1)) (mkCscore -3.0 1 0.2857142857142857 0.0 -3.2857142857142856))) (mkSInst (mkPair (mkInst (1 0)) (mkCscore -3.0 1 0.2857142857142857 0.0 -3.2857142857142856))))) (mkDemeId "1")) (true false false (mkInst (1 1)) 3 1 (mkCscore -3.0 1 0.2857142857142857 0.0 -3.2857142857142856) -3.2857142857142856 4 2 3)))
+;; deme for strategy hill climbing using demeSpace
+!(bind! &stratDeme (new-space))
+!(add-atom &stratDeme 
+  (mkRep 
+    (mkKbMap 
+      (mkDscKbMp (((mkNodeId (1)) 0) ((mkNodeId (2)) 1)))
+      (mkDscMp 
+        (((mkDiscSpec 2) 
+            (mkSSK (mkDiscKnob (mkKnob (mkNodeId (1))) (mkMultip 2) (mkDiscSpec 1) (mkDiscSpec 1) ())))
+         ((mkDiscSpec 2) 
+            (mkSSK (mkDiscKnob (mkKnob (mkNodeId (2))) (mkMultip 2) (mkDiscSpec 1) (mkDiscSpec 1) ()))))))
+    (mkTree (mkNode PRIORITIZED-OR) 
+      ((mkTree (mkNode playwin) ()) 
+       (mkTree (mkNode playblock) ())))))
+!(add-atom &stratDeme (mkSInstSet ()))
+!(add-atom &stratDeme (mkDemeId "1"))
+
+!(assertEqual
+   (let*
+     (
+       (($instance $demespace $state) (hillClimbing &stratDeme 3.0 (mkInst (cons 1 (cons 1 ()))) (mkParams applyStrategyBasedScore (3 3.5))))
+       ($instSet (match $demespace (mkSInstSet $s) $s))
+       ($instanceCount (List.length $instSet))
+       ($scoredElems (List.map isScored $instSet))
+     )
+     ((>= $instanceCount 1) (List.any $scoredElems)))
+   (True True))
 
 ;; hillclimbing test for the deme spaces version
 
