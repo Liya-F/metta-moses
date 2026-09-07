@@ -342,7 +342,7 @@ $sortedSInstSet
            ($popSizeRatio 1.0)
            ($selectionRatio 0.5)
            ($replacementRatio 0.5)
-           ($bestPossibleCscore (worstCscore))
+           ($bestPossibleCscore (mkCscore 0 0 0.0 0.0 0.0))
            ($optimizedDeme (univariate $demeSpace $iTable $cpxCoeff $popSizeRatio $selectionRatio $replacementRatio $bestPossibleCscore))
            ((mkSInstSet $finalInstList) (match $demeSpace (mkSInstSet $s) (mkSInstSet $s)))
            ($bestInst (if (== $finalInstList ()) $initCenter (getInst (first $finalInstList))))

@@ -160,6 +160,7 @@
     )
 (<= (* 3 $totalSize) (* 4 $generatedSize))) True)
 
+!(bind! &deme1 (new-space))
 !(add-atom &deme1 (mkRep (mkKbMap (mkDscMp (((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ()) )) ((mkDiscSpec 3) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())))))) (mkTree (mkNode AND) ( (mkKnob (mkNullVex ((mkTree (mkNode A) ()))) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 0) (mkKnob (mkNullVex ((mkTree (mkNode B) ()))) (mkLSK (mkDiscKnob (mkMultip 3) (mkDiscSpec 0) (mkDiscSpec 0) ())) 1)))))
 !(add-atom &deme1 (mkSInstSet ()))
 !(add-atom &deme1 (mkDemeId "1"))
@@ -193,6 +194,7 @@
      ((>= $instanceCount 4) (List.any $scoredElems)))
 (True True))
 
+!(bind! &deme2 (new-space))
 !(add-atom &deme2 (mkRep () ()))
 !(add-atom &deme2 (mkSInstSet ()))
 !(add-atom &deme2 (mkDemeId ()))
@@ -220,6 +222,7 @@
 ) True)
 
 ;; deme for strategy hill climbing using demeSpace
+!(bind! &stratDeme (new-space))
 !(add-atom &stratDeme 
   (mkRep 
     (mkKbMap 
