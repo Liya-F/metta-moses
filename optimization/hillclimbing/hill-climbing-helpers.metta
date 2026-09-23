@@ -265,7 +265,8 @@
       ((mkParams applyStrategyBasedScore)
         (let*
           (
-            ($disc (getDisk $POASet))
+            ($representation (match $POASet (mkRep $kbmp $tree) (mkRep $kbmp $tree)))
+            ($disc (getDiskfromRep $representation))
             (($nGames $complexityRatio) $FsScorer)
             ;; $tTableBscorer is the scalar `$maxScore` for the strategy path
             ;; (was a Cscore struct before the termination switched to scalar).
@@ -351,7 +352,7 @@
                                           (case $iTable
                                             (
                                               ((mkITable $rows $labels) ($transformFunction $updatedInstSet $rep $id (mkITable $rows $labels) $rowOCoeff))
-                                              ($ComplexityRatio ($transformFunction $updatedInstSet $rep $id ($rowOCoeff $size) $ComplexityRatio))
+                                              ($ComplexityRatio ($transformFunction $updatedInstSet $rep $id ($rowOCoeff) $ComplexityRatio))
                                             ))))
 
         ; ($updatedDeme (if (or (== $rep ()) (== $id ())) 

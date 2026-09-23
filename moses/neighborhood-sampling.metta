@@ -428,7 +428,7 @@
                        (generateAllInNeighborhood (mkMultip 2) $centerInst $dist)))
     ($scoredNewInstances (List.map initInstScoreFs $newInstances))
     ($updatedInstList (List.concat $instList $scoredNewInstances))
-    ($_ (remove-atom $demeSpace (mkSInstSet $oldinstList)))
+    ($_ (remove-atom $demeSpace (mkSInstSet $instList)))
     ($_ (add-atom $demeSpace (mkSInstSet $updatedInstList)))
  )
  ((mkSInstSet $updatedInstList) $updatedNumNewInstances)))

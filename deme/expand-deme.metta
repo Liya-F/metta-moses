@@ -77,7 +77,7 @@
          ($demes (trace! "Creating Deme" (createDeme $nDeme $demeIds $tree)))
          ($gameContext ($nGames $complexityRatio $targetCScore))
       )
-      (map-atom $demes $deme (expandDemeHelper $deme $gameContext $optimize))))
+      (map-atom $demes $deme (expandDemeSpaceHelper $deme $gameContext $optimize))))
 
 ;; Unified helper for both Boolean and Strategy domains
 ;; Optimizes each deme in the list using the provided optimizer and context
@@ -86,20 +86,20 @@
 ;;   $context: Scoring context (ITable for Boolean, tuple for Strategy)
 ;;   $optimize: Optimizer function
 ;; Returns: Optimized deme with scored instances
-(= (expandDemeHelper (mkDeme (mkRep (mkKbMap (mkDscMp $dscKbMp)) $updatedTree) $sInstList $demeId) $context $optimize)
-(let*
-(
-    ($lengthOfDscKbMp (Map.length $dscKbMp))
-    ;; ($generatedList (List.generate $lengthOfDscKbMp 0))
-    ($generatedList (createInitialInstance $dscKbMp))
-    ($_ (println! (GeneratedList: $generatedList)))
-    ($deme (mkDeme (mkRep (mkKbMap (mkDscMp $dscKbMp)) $updatedTree) $sInstList $demeId))
-    ;; ($_ (println! (Rep: (mkRep (mkKbMap (mkDscKbMp $dscKbMp) (mkDscMp $dscMp)) $updatedTree))))
-    ;; ($_ (println! "Optimizing Deme"))
-    (($inst $optimDeme $state) (optimizeDemes $deme $context (mkInst $generatedList) $optimize))
-)
-$optimDeme
-))
+; (= (expandDemeHelper (mkDeme (mkRep (mkKbMap (mkDscMp $dscKbMp)) $updatedTree) $sInstList $demeId) $context $optimize)
+; (let*
+; (
+;     ($lengthOfDscKbMp (Map.length $dscKbMp))
+;     ;; ($generatedList (List.generate $lengthOfDscKbMp 0))
+;     ($generatedList (createInitialInstance $dscKbMp))
+;     ($_ (println! (GeneratedList: $generatedList)))
+;     ($deme (mkDeme (mkRep (mkKbMap (mkDscMp $dscKbMp)) $updatedTree) $sInstList $demeId))
+;     ;; ($_ (println! (Rep: (mkRep (mkKbMap (mkDscKbMp $dscKbMp) (mkDscMp $dscMp)) $updatedTree))))
+;     ;; ($_ (println! "Optimizing Deme"))
+;     (($inst $optimDeme $state) (optimizeDemes $deme $context (mkInst $generatedList) $optimize))
+; )
+; $optimDeme
+; ))
 
 (= (expandDemeSpaceHelper $demeSpace $context $optimize)
 (let*
@@ -118,6 +118,7 @@ $optimDeme
 )
 $optimDeme
 ))
+
 ;; The main loop
 ;; Takes 2 termination criterias:
 ;;     - $maxGen : how many times we want the loop to run
