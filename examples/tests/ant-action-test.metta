@@ -4,6 +4,7 @@
 ;; are defined only in examples/ant/ant-action-domain.metta.  This file owns
 ;; test fixtures and assertions, including the independent 89-pellet trail.
 
+!(import! &self ../../deme/demeSpaceName.py)
 !(import! &self utilities/general-helpers)
 !(import! &self parameters/registry)
 !(import! &self parameters/defaults)
@@ -61,6 +62,7 @@
 !(import! &self representation/build-action)
 !(import! &self representation/build-knobs)
 !(import! &self representation/knob-mapper)
+!(import! &self representation/candidate)
 !(import! &self representation/representation)
 !(import! &self representation/create-representation)
 !(import! &self scoring/complexity-based-scorer)

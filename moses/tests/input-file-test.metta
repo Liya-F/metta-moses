@@ -56,6 +56,7 @@
 !(import! &self ../../representation/build-logical)
 !(import! &self ../../representation/build-knobs)
 !(import! &self ../../representation/knob-mapper)
+!(import! &self ../../representation/candidate)
 !(import! &self ../../representation/representation)
 !(import! &self ../../representation/create-representation)
 
@@ -82,6 +83,7 @@
 !(import! &self ../demo-problems)
 
 !(callPredicate (Predicate (py_add_lib_dir "scripts" first)))
+!(callPredicate (Predicate (py_add_lib_dir "deme" first)))
 
 (= (inputCsvTable)
    (mkITable

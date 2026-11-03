@@ -20,6 +20,7 @@
 ;; PeTTa gates reduction on load order, so the stack must match).
 ;; ============================================================
 
+!(import! &self ../../deme/demeSpaceName.py)
 !(import! &self ../../utilities/general-helpers)
 !(import! &self ../../parameters/registry)
 !(import! &self ../../parameters/defaults)
@@ -80,6 +81,7 @@
 !(import! &self ../../representation/build-action)
 !(import! &self ../../representation/build-knobs)
 !(import! &self ../../representation/knob-mapper)
+!(import! &self ../../representation/candidate)
 !(import! &self ../../representation/representation)
 !(import! &self ../../representation/create-representation)
 
