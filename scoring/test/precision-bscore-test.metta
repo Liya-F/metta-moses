@@ -4,6 +4,32 @@
 !(import! &self ../../../metta-moses/utilities/ordered-multimap)
 !(import! &self ../../../metta-moses/feature-selection/feature-selection-helpers)
 !(import! &self ../../../metta-moses/scoring/precision-bscore)
+!(import! &self ../../utilities/enum)
+
+;; Enum strings and typed rows follow Classic's map ordering.
+!(assertEqual (enum< (mkEnum "blue") (mkEnum "red")) True)
+!(assertEqual (enum< (mkEnum "red") (mkEnum "red")) False)
+!(assertEqual (enum< (mkEnum "a") (mkEnum "aa")) True)
+!(assertEqual (enum< (mkEnum "red") (mkEnum "blue")) False)
+!(assertEqual (row< () ()) False)
+!(assertEqual (row< (True) (False)) True)
+!(assertEqual (row< (4.9 3.5) (5.1 3.0)) True)
+!(assertEqual (row< (5.1 3.0) (5.1 3.5)) True)
+!(assertEqual (row< (5.1 3.5) (5.1 3.0)) False)
+
+(= (enumRows)
+   ((5.1 3.5 (mkEnum "red"))
+    (4.9 3.0 (mkEnum "blue"))
+    (5.1 3.5 (mkEnum "blue"))
+    (5.1 3.5 (mkEnum "red"))))
+
+!(assertEqual (cTable (enumRows) (A B target) row< tableValue<)
+  (((4.9 3.0) (((mkEnum "blue") 1)))
+   ((5.1 3.5) (((mkEnum "blue") 1) ((mkEnum "red") 2)))))
+!(assertEqual (cTable () (A target) row< tableValue<) ())
+!(assertEqual (cTable ((True True) (False False) (True False)) (A target) row< tableValue<)
+  (((True) ((True 1) (False 1))) ((False) ((False 1)))))
+!(assertEqual (size-atom (collapse (cTable (enumRows) (A B target) row< tableValue<))) 1)
 
 (= (andTable) 
    (mkITable
@@ -32,22 +58,24 @@
 
 ;; Test of cTable
 !(assertEqual (cTable ((True True True) (True False False) (False True False) (False False False)) (A B Output)) 
-            (cons ((True True) (1 0)) (cons ((True False) (0 1)) (cons ((False True) (0 1)) (cons ((False False) (0 1)) ()))))
+            (((True True) ((True 1))) ((True False) ((False 1)))
+             ((False True) ((False 1))) ((False False) ((False 1))))
   )
 
 !(assertEqual (cTable ((False False False) (True False False) (False False False) (True False False) (True False False) (False False True) (False False True) (False True True) (False True True) (False True True)) (v1 v2 target))
-            (cons ((False False) (2 2)) (cons ((True False) (0 3)) (cons ((False True) (3 0)) ())))
+            (((False False) ((False 2) (True 2)))
+             ((True False) ((False 3))) ((False True) ((True 3))))
   )
 
 
-!(assertEqual (makePrecisionRow ((True True) (1 0)) ()) (cons (0.5 (0.5 1)) ()))
-!(assertEqual (makePrecisionRow ((False True) (0 2)) ()) (cons (-0.5 (-1.0 2)) ()))
+!(assertEqual (makePrecisionRow ((True True) ((True 1))) ()) (cons (0.5 (0.5 1)) ()))
+!(assertEqual (makePrecisionRow ((False True) ((False 2))) ()) (cons (-0.5 (-1.0 2)) ()))
 !(assertEqual (makePrecisionRow () ()) ())
 
 
-!(assertEqual (createPrecisionRows (cons ((True True) (1 0)) 
-                                 (cons ((True False) (0 1)) 
-                                         (cons ((False True) (0 1)) ()))))  
+!(assertEqual (createPrecisionRows (((True True) ((True 1)))
+                                  ((True False) ((False 1)))
+                                  ((False True) ((False 1)))))
                 ;;result 
                 ((0.5 (0.5 1)) (-0.5 (-0.5 1)) (-0.5 (-0.5 1)))             
   )

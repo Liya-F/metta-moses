@@ -7,7 +7,7 @@
 ;; data tables, but that is not implemented here.
 
 
-;; CountTable: It counts True Positives (pos) and False Positives (neg) for each unique input pattern
+;; CountTable groups equal inputs and counts each answer.
 ;; 
 ;; Input:
 ;;   $row: One data row: feature values + target
@@ -17,29 +17,23 @@
 ;;   $acc: Accumulator Map storing results from previous rows
 ;; 
 ;; Output:
-;;   Map from input pattern -> (pos_count neg_count)
-;;   Example: (cons ((False False) (2 2)) (cons ((True False) (0 3)) (cons ((False True) (3 0)) ())))
-;; (: countTable (-> Expression Number (Map $k $v) (Map Expression (Number Number))))
+;;   Map from input pattern -> ((answer count) ...)
+;;   Example: (((False False) ((True 2) (False 2))))
+;; Rows contain their target in the last column.
 (= (countTable $row $targetIndex $acc)
+   (countTable $row $targetIndex $acc == ==))
+
+(= (countTable $row $targetIndex $acc $rowLess $answerLess)
    (if (== $row ())
-      ()
-      (let* (
-            ($inputPart (List.takeN $targetIndex $row)) ;; Extract input features (all columns except target)
-            ($targetVal (index-atom $row $targetIndex)) ;; Get target value (True/False)
-            
-            (($pos $neg) (if (Map.contains $inputPart $acc)
-                           (Map.getByKey $inputPart $acc)
-                           (0 0))) ;; Get existing counts for this input pattern, or initialize to (0,0)
-
-            ($newCounts (if $targetVal ;; Update counts based on target value
-                           ((+ $pos 1) $neg)       ;; True target: increment positive count
-                           ($pos (+ $neg 1))))    ;; False target: increment negative count
-
-            )   
-      (Map.insert ($inputPart $newCounts) $acc == ==) ;; used == comparator since the ordering doesn't matter we just need unorderedMap not orderedMap
-      )
-   )
-)
+       ()
+       (let* (
+          ($inputPart (List.takeN $targetIndex $row))
+          ($targetVal (index-atom $row $targetIndex))
+          ($answers (if (Map.contains $inputPart $acc)
+                        (Map.getByKey $inputPart $acc) ()))
+          ($count (Table.answerCount $targetVal $answers))
+          ($newCounts (Map.insert ($targetVal (+ $count 1)) $answers == $answerLess)))
+         (Map.insert ($inputPart $newCounts) $acc == $rowLess))))
 
 ;; Build compressed table (CTable) by grouping identical input patterns
 ;; The structure of the CTable is referred from the below test file 
@@ -50,15 +44,47 @@
 ;;   $labels: Column labels (features + target)
 ;; 
 ;; Output:
-;;   Map from input_pattern -> (positive_count negative_count)
+;;   Map from input_pattern -> an answer-count Map
 ;;
 ;; Example:
-;;    (cons ((False False) (2 2)) (cons ((True False) (0 3)) (cons ((False True) (3 0)) ())))
-;; (: cTable (-> Expression Expression (Map Expression (Number Number))))
+;;    (((False False) ((True 2) (False 2))))
+;; The default comparators keep the precision scorer's insertion order.
 (= (cTable $rows $labels)
+   (cTable $rows $labels == ==))
+
+(= (cTable $rows $labels $rowLess $answerLess)
    (let $targetIndex (- (size-atom $labels) 1)
      (foldl-atom $rows () $acc $row
-                 (countTable $row $targetIndex $acc))))
+       (countTable $row $targetIndex $acc $rowLess $answerLess))))
+
+(= (Table.answerCount $answer $answers)
+   (if (Map.contains $answer $answers)
+       (Map.getByKey $answer $answers)
+       0))
+
+;; enum_type.h orders enum labels lexicographically. sort-atom supports strings.
+(= (enum< (mkEnum $left) (mkEnum $right))
+   (if (== $left $right)
+       False
+       (let (cons $first $_) (sort-atom ($left $right))
+         (== $first $left))))
+
+;; Compare cells from the same typed column. Classic builtin orders True before False.
+(= (tableValue< $left $right)
+   (case $left
+     (((mkEnum $_) (enum< $left $right))
+      (True (== $right False))
+      (False False)
+      ($number (< $number $right)))))
+
+;; Lexicographic comparison stops at the first unequal cell, so a fold would visit extra cells.
+(= (row< () ()) False)
+(= (row< () (cons $_ $_)) True)
+(= (row< (cons $_ $_) ()) False)
+(= (row< (cons $left $leftTail) (cons $right $rightTail))
+   (if (== $left $right)
+       (row< $leftTail $rightTail)
+       (tableValue< $left $right)))
 
 ;; sum_outputs = 0.5 * (pos - neg)
 ;;
@@ -76,7 +102,7 @@
 ;; This builds the precision-sorted structure needed for best Possible selection
 ;;
 ;; Input:
-;;   $item: Map entry in form (input_pattern (pos_count neg_count))
+;;   $item: Map entry in form (input_pattern ((answer count) ...))
 ;;   $acc: MultiMap accumulator for precision-sorted results
 ;;
 ;; Output:
@@ -89,7 +115,7 @@
 ;; - precision = sumo / total (individual precision for this pattern)
 
 ;; Example calculation:
-;;   Input: ((True False) (3 1)) 
+;;   Input: ((True False) ((True 3) (False 1)))
 ;;   total = 3 + 1 = 4
 ;;   sumo = 0.5 * (3 - 1) = 1.0
 ;;   precision = 1.0 / 4 = 0.25
@@ -102,7 +128,9 @@
    (if (== $item ())
       ()
       (let* (
-            (($labels ($pos $neg)) $item)  ;; Extract positive and negative counts
+            (($labels $answers) $item)
+            ($pos (Table.answerCount True $answers))
+            ($neg (Table.answerCount False $answers))
             
             ($total (+ $pos $neg)) ;; Calculate totals and precision metrics
             ($sumo (sumOutputs $pos $neg))
@@ -117,7 +145,7 @@
 ;; This prepares data for the greedy best_possible_bscore algorithm
 ;;
 ;; Input:
-;;   $groupedData: Map from input_pattern -> (pos_count neg_count)
+;;   $groupedData: Map from input_pattern to an answer-count Map
 ;;
 ;; Output:
 ;;   Expression containing precision-sorted list: ((precision (sumo total)) ...)
