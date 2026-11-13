@@ -33,11 +33,11 @@
 !(add-atom &params (maxGen   50))
 !(add-atom &params (nDeme    1))
 
-;; ---- Input table (boolean CSV path) ----
-;; inputFile: filesystem path to a CSV with boolean-valued columns. When
+;; ---- Input table (typed CSV path) ----
+;; inputFile: filesystem path to a CSV with Boolean, numeric, or enum columns. When
 ;;   non-empty, (moses) loads the table from this file instead of
 ;;   dispatching to the demo problem function named by `problem`.
-;;   Accepted cell formats: True/False, 1/0, yes/no, t/f (case-insensitive).
+;;   Enum values become mkEnum values; the existing Boolean formats remain valid.
 ;; targetFeature: name of the output column. Empty -> last column.
 ;; Best-possible raw score is 0 for clean (non-noisy) data; noisy tables
 ;; (duplicate input rows with conflicting outputs) will terminate via

@@ -1,19 +1,20 @@
 """
-CSV -> MeTTa input-table loader for the MOSES boolean problem path.
+CSV -> MeTTa input-table loader for Boolean, numeric, and enum columns.
 
 Called from MeTTa via:
-    (py-call (csv_helper.load_boolean_table <path> <target_feature>))
+    (py-call (csv_helper.load_table <path> <target_feature>))
 
 Returns a STRING containing a valid MeTTa S-expression of the form
     (mkITable <columns-expression-list> <labels-expression-list>)
 which the caller `parse`s back into a MeTTa term.
 
-Every cell is type-checked against a small set of boolean literals; any
+Every cell is checked against its column's Boolean, numeric, or enum type; any
 unparseable cell raises a ValueError with row and column context so
 failures are loud and locatable.
 """
 
 import csv
+import json
 
 BOOLEAN_LITERALS = {
     "true":  "True",
@@ -46,8 +47,70 @@ def _expr_list(items):
     return "({})".format(" ".join(items))
 
 
-def load_boolean_table(path, target_feature=""):
-    """Read `path` as CSV, validate every cell as boolean, move the target
+def _cell_type(cell, row_num, col_name):
+    """Infer one CSV cell as Boolean, continuous, or enum data."""
+    value = cell.strip()
+    if not value:
+        raise ValueError(
+            "row {row}, column {col!r}: empty values are not supported".format(
+                row=row_num, col=col_name
+            )
+        )
+    if value.lower() in BOOLEAN_LITERALS:
+        return "boolean"
+    try:
+        float(value)
+        return "continuous"
+    except ValueError:
+        if value[0].isalpha():
+            return "enum"
+        raise ValueError(
+            "row {row}, column {col!r}: cannot infer the type of {cell!r}".format(
+                row=row_num, col=col_name, cell=cell
+            )
+        )
+
+
+def _column_type(cells, row_numbers, col_name):
+    """Infer one type for a complete column, including 0/1 numeric promotion."""
+    inferred = None
+    for cell, row_num in zip(cells, row_numbers):
+        cell_type = _cell_type(cell, row_num, col_name)
+        if inferred is None:
+            inferred = cell_type
+        elif inferred == cell_type:
+            continue
+        elif {inferred, cell_type} == {"boolean", "continuous"}:
+            inferred = "continuous"
+        else:
+            raise ValueError(
+                "column {col!r}: inconsistent {left} and {right} values".format(
+                    col=col_name, left=inferred, right=cell_type
+                )
+            )
+    return inferred
+
+
+def _render_cell(cell, cell_type, row_num, col_name):
+    """Render one validated cell as a MeTTa value."""
+    value = cell.strip()
+    if cell_type == "boolean":
+        return _to_bool_literal(cell, row_num, col_name)
+    if cell_type == "continuous":
+        try:
+            float(value)
+        except ValueError:
+            raise ValueError(
+                "row {row}, column {col!r}: cannot parse {cell!r} as a number".format(
+                    row=row_num, col=col_name, cell=cell
+                )
+            )
+        return value
+    return "(mkEnum {})".format(json.dumps(value))
+
+
+def load_table(path, target_feature=""):
+    """Read `path` as CSV, validate every cell against its column type, move the target
     column to the end (MeTTa convention), and return an `(mkITable ...)`
     S-expression string.
 
@@ -60,7 +123,7 @@ def load_boolean_table(path, target_feature=""):
     Raises:
         FileNotFoundError: if the path doesn't exist.
         ValueError: on empty file, mis-shaped row, unknown target column, or
-                    any cell that isn't a recognized boolean literal.
+                    any cell that doesn't match its column type.
     """
     with open(path) as f:
         rows = list(csv.reader(f))
@@ -101,13 +164,19 @@ def load_boolean_table(path, target_feature=""):
                 )
             )
 
-        bools = [
-            _to_bool_literal(row[i], r_num, labels[i])
+    column_types = [
+        _column_type([row[i] for row in body], range(2, len(body) + 2), labels[i])
+        for i in range(num_columns)
+    ]
+
+    for r_num, row in enumerate(body, start=2):
+        values = [
+            _render_cell(row[i], column_types[i], r_num, labels[i])
             for i in range(num_columns)
         ]
 
-        reordered = [b for i, b in enumerate(bools) if i != target_idx]
-        reordered.append(bools[target_idx])
+        reordered = [b for i, b in enumerate(values) if i != target_idx]
+        reordered.append(values[target_idx])
 
         for col_idx, value in enumerate(reordered):
             validated_columns[col_idx].append(value)

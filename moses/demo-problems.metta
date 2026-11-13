@@ -95,7 +95,7 @@
 (= (resolve-itable)
    (if (== (param inputFile) "")
        (let $p (param problem) ($p))
-       (let $sexpr (py-call (csv_helper.load_boolean_table (param inputFile) (param targetFeature)))
+       (let $sexpr (py-call (csv_helper.load_table (param inputFile) (param targetFeature)))
             (parse $sexpr))))
 
 ;; ============================================================

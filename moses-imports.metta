@@ -20,6 +20,7 @@
 !(import! &self parameters/cli)
 !(import! &self parameters/domain-loader)
 ;; ---- Utilities ----
+!(import! &self utilities/enum)
 !(import! &self utilities/list-methods)
 !(import! &self utilities/pair)
 !(import! &self utilities/map)
@@ -155,7 +156,7 @@
 !(import! &self moses/demo-problems)
 
 ;; ---- Bootstrap the Python CSV helper used by the --inputFile path ----
-;; csv_helper.load_boolean_table(path, target) returns an (mkITable ...)
+;; csv_helper.load_table(path, target) returns an (mkITable ...)
 ;; S-expression as a string; the MeTTa side parses it back into a term.
 ;;
 ;; PeTTa's (py-call M.F …) form is limited to a single dot, so we can't
