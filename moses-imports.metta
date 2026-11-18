@@ -71,6 +71,8 @@
 !(import! &self scoring/cacheSpace)
 !(import! &self scoring/fitness)
 !(import! &self scoring/boolean-ops)
+!(import! &self scoring/enum-ops)
+!(import! &self scoring/numeric-ops)
 ;; Action engine: registry (structural/cleanup operator membership only;
 ;; operator clauses are bare heads found by the evaluator's reduce
 ;; dispatch) -> evaluator -> structural operators.
