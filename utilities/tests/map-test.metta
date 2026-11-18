@@ -69,3 +69,19 @@
 ;; !(assertEqual (Map.insert ((mkNodeId (2 2)) 0) (cons ((mkNodeId (2 1))  1) (cons ((mkNodeId (2 3))  2) ())) == nodeId<)
 ;;               (cons ((mkNodeId (2 1)) 1) (cons ((mkNodeId (2 2)) 0) (cons ((mkNodeId (2 3)) 2) ()))))
 !(assertEqual (Map.insert ((mkNodeId (2 2)) 0) () == nodeId<) (cons ((mkNodeId (2 2)) 0) ()))
+
+
+;; Custom numeric equality keeps the first key, as in Classic's std::map.
+(= (numericKeyEqual $left $right)
+   (and (<= $left $right) (>= $left $right)))
+
+!(assertEqual (Map.contains 1.0 ((1 red)) numericKeyEqual) True)
+!(assertEqual (Map.contains 2.0 ((1 red)) numericKeyEqual) False)
+!(assertEqual (Map.contains 1.0 () numericKeyEqual) False)
+!(assertEqual (Map.getByKey 1.0 ((1 red)) numericKeyEqual) red)
+!(assertEqual (Map.getByKey 2.0 ((1 red)) numericKeyEqual) (Error 2.0 "not found"))
+!(assertEqual (Map.getByKey 1.0 () numericKeyEqual) (Error 1.0 "not found"))
+!(assertEqual (Map.insert (1.0 blue) ((1 red)) numericKeyEqual <) ((1 blue)))
+!(assertEqual (Map.insert (0.0 blue) ((-0.0 red)) numericKeyEqual <) ((-0.0 blue)))
+!(assertEqual (Map.contains 1.0 ((1 red))) False)
+!(assertEqual (size-atom (collapse (Map.getByKey 1.0 ((1 red)) numericKeyEqual))) 1)

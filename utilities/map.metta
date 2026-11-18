@@ -14,7 +14,7 @@
 (= (Map.insert ($key $value) () $fEq $fLt) (cons ($key $value) ()))
 (= (Map.insert ($key $value) (cons ($curKey $curVal) $tail) $fEq $fLt)
     (if ($fEq $key $curKey)
-        (cons ($key $value) $tail)
+        (cons ($curKey $value) $tail)
         (if ($fLt $key $curKey)
             (cons ($key $value) (cons ($curKey $curVal) $tail))
             (cons ($curKey $curVal) (Map.insert ($key $value) $tail $fEq $fLt)))))
@@ -29,9 +29,10 @@
             (cons-atom ($curKey $curVal) (Map.insert ($key $value) $tail)))))
 
 ;; Get a value from a Map using key
-(= (Map.getByKey $key ()) (Error $key "not found"))
-(= (Map.getByKey $key (cons ($curKey $curVal) $tail))
-    (if (== $key $curKey) $curVal (Map.getByKey $key $tail)))
+(= (Map.getByKey $key $map) (Map.getByKey $key $map ==))
+(= (Map.getByKey $key () $fEq) (Error $key "not found"))
+(= (Map.getByKey $key (cons ($curKey $curVal) $tail) $fEq)
+    (if ($fEq $key $curKey) $curVal (Map.getByKey $key $tail $fEq)))
 
 ;; Get a pair from a Map using index
 (= (Map.getByIdx () $i) (Error () "Index out of bounds"))
@@ -39,9 +40,10 @@
    (List.getByIdx (cons $x $xs) $i))
 
 ;; Check if a key is in the Map
-(= (Map.contains $key ()) False)
-(= (Map.contains $key (cons ($curKey $curVal) $tail))
-    (if (== $key $curKey) True (Map.contains $key $tail)))
+(= (Map.contains $key $map) (Map.contains $key $map ==))
+(= (Map.contains $key () $fEq) False)
+(= (Map.contains $key (cons ($curKey $curVal) $tail) $fEq)
+    (if ($fEq $key $curKey) True (Map.contains $key $tail $fEq)))
 
 ;; Check if a value is in a Map
 (= (Map.checkValue $value ()) False)

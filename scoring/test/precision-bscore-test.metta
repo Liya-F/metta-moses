@@ -139,3 +139,31 @@
 ;                                                                         ;; this is the actual result in the moses test file too for precisionTable which is 5/7 = 0.7142857142857143
 ;                                                                         ;; reference: https://github.com/opencog/moses/blob/master/tests/moses/scoringUTest.cxxtest#L55
 !(assertEqual (preScorer (0 1) (precisionTable) 1.0 0.5 1.0 True 100.0) 0.7142857142857143)
+
+
+;; Classic stores continuous inputs as doubles and groups equal numeric keys.
+!(assertEqual (tableValue== 1 1.0) True)
+!(assertEqual (tableValue== -0.0 0.0) True)
+!(assertEqual (tableValue== 1 1.0000001) False)
+!(assertEqual (tableValue== True 1) False)
+!(assertEqual (tableValue== (mkEnum "red") (mkEnum "red")) True)
+!(assertEqual (tableValue== (mkEnum "red") (mkEnum "blue")) False)
+!(assertEqual (row== (1 True (mkEnum "red")) (1.0 True (mkEnum "red"))) True)
+!(assertEqual (row== () ()) True)
+!(assertEqual (row== (1) (1.0 2)) False)
+!(assertEqual (row== (1 2) (2 1)) False)
+!(assertEqual (row< (1 2) (1.0 3)) True)
+!(assertEqual (row< (1.0 3) (1 2)) False)
+!(assertEqual (row< (1 2) (1.0 2.0)) False)
+!(assertEqual
+  (cTable ((1 (mkEnum "red")) (1.0 (mkEnum "blue"))) (x target) row< tableValue<)
+  (((1) (((mkEnum "blue") 1) ((mkEnum "red") 1)))))
+!(assertEqual
+  (cTable ((-0.0 (mkEnum "red")) (0.0 (mkEnum "blue"))) (x target) row< tableValue<)
+  (((-0.0) (((mkEnum "blue") 1) ((mkEnum "red") 1)))))
+!(assertEqual
+  (cTable ((1 (mkEnum "red")) (1.0 (mkEnum "blue"))) (x target))
+  (((1) (((mkEnum "red") 1) ((mkEnum "blue") 1)))))
+!(assertEqual
+  (size-atom (collapse (cTable ((1 (mkEnum "red")) (1.0 (mkEnum "blue"))) (x target) row< tableValue<)))
+  1)
