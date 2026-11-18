@@ -74,11 +74,12 @@
               ;; ($_ (println! (-----------------------)))
               ;; ($_ (println! (Inside buildTree with expr: $expr)))
               (($head $tail) (decons-atom $expr))
-              ($children (map buildTree $tail))
+              ($isEnum (and (== $head mkEnum) (== (size-atom $tail) 1)))
+              ($children (if $isEnum () (map buildTree $tail)))
               ;; ($_ (println! (Building tree with head: $head And children: $children)))
               ;; ($_ (println! (FinalAnswer: (mkTree (mkNode $head) $children))))
             )
-            (mkTree (mkNode $head) $children)
+            (mkTree (mkNode (if $isEnum $expr $head)) $children)
             )
             ;; A natural True/False is a constant, but as a Grounded atom it matches neither
             ;; arm of the reduct's classifiers and gets dropped -- (AND A False) reduced to A.

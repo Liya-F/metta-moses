@@ -1,5 +1,6 @@
 !(import! &self ../general-helpers)
 !(import! &self ../list-methods)
+!(import! &self ../enum)
 !(import! &self ../nodeId)
 !(import! &self ../../reduct/boolean-reduct/rte-helpers)
 !(import! &self ../../reduct/boolean-reduct/cut-unnecessary-or)
@@ -528,3 +529,29 @@
 
 !(assertEqual (pruneExemplar (mkTree (mkNode AND) (cons (mkTree (mkNode A) ()) (cons (mkTree (mkNode B) ()) ()))) (A B)) 
            (mkTree (mkNode AND) ()))
+
+
+;; Enum constants remain whole leaves, as Classic's enum vertices do.
+!(assertEqual
+  (buildTree (mkEnum "red"))
+  (mkTree (mkNode (mkEnum "red")) ()))
+!(assertEqual
+  (preOrder (buildTree (mkEnum "red")))
+  (mkEnum "red"))
+!(assertEqual
+  (size-atom (collapse (buildTree (mkEnum "red"))))
+  1)
+
+;; Keep operator heads inert while constructing program data.
+!(assertEqual
+  (buildTree (quote (cond (AND A (NOT B)) (mkEnum "red")
+                         (OR C D) (mkEnum "blue") (mkEnum "green"))))
+  (mkTree (mkNode cond)
+    ((mkTree (mkNode AND)
+       ((mkTree (mkNode A) ())
+        (mkTree (mkNode NOT) ((mkTree (mkNode B) ())))))
+     (mkTree (mkNode (mkEnum "red")) ())
+     (mkTree (mkNode OR)
+       ((mkTree (mkNode C) ()) (mkTree (mkNode D) ())))
+     (mkTree (mkNode (mkEnum "blue")) ())
+     (mkTree (mkNode (mkEnum "green")) ()))))

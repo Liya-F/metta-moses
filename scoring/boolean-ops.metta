@@ -15,10 +15,10 @@
 (= (NOT ($x))  (not $x))
 
 ;; preOrderExp: Tree -> wrapped shape. Every operator node becomes
-;; (Op (children)); leaves stay label symbols; nullary AND/OR -> (Op ()), its
-;; identity. Emissions are quote-protected so the clauses cannot fire here.
+;; (Op (children)); leaves stay label symbols; nullary operators stay wrapped.
+;; Emissions are quote-protected so the clauses cannot fire here.
 (= (preOrderExp (mkTree (mkNode $r) ()))
-   (if (once (is-member $r (quote (AND OR))))
+   (if (once (is-member $r (quote (AND OR cond))))
        (quote ($r ()))
        ;; A TRUE/FALSE leaf is not a column label: emit the Bool, which evalSubtree
        ;; short-circuits to a constant column (evalSubtree in scoring/fitness) with no &subtreeCache

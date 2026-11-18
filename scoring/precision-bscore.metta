@@ -29,11 +29,11 @@
        (let* (
           ($inputPart (List.takeN $targetIndex $row))
           ($targetVal (index-atom $row $targetIndex))
-          ($answers (if (Map.contains $inputPart $acc)
-                        (Map.getByKey $inputPart $acc) ()))
+          ($answers (if (Map.contains $inputPart $acc row==)
+                        (Map.getByKey $inputPart $acc row==) ()))
           ($count (Table.answerCount $targetVal $answers))
           ($newCounts (Map.insert ($targetVal (+ $count 1)) $answers == $answerLess)))
-         (Map.insert ($inputPart $newCounts) $acc == $rowLess))))
+         (Map.insert ($inputPart $newCounts) $acc row== $rowLess))))
 
 ;; Build compressed table (CTable) by grouping identical input patterns
 ;; The structure of the CTable is referred from the below test file 
@@ -69,6 +69,17 @@
        (let (cons $first $_) (sort-atom ($left $right))
          (== $first $left))))
 
+;; Classic numeric keys compare by value, including integer/float pairs and signed zero.
+(= (tableValue== $left $right)
+   (if (and (== (get-type $left) Number) (== (get-type $right) Number))
+       (and (<= $left $right) (>= $left $right))
+       (== $left $right)))
+
+(= (row== $left $right)
+   (if (== (size-atom $left) (size-atom $right))
+       (all (List.zipWith tableValue== $left $right))
+       False))
+
 ;; Compare cells from the same typed column. Classic builtin orders True before False.
 (= (tableValue< $left $right)
    (case $left
@@ -82,7 +93,7 @@
 (= (row< () (cons $_ $_)) True)
 (= (row< (cons $_ $_) ()) False)
 (= (row< (cons $left $leftTail) (cons $right $rightTail))
-   (if (== $left $right)
+   (if (tableValue== $left $right)
        (row< $leftTail $rightTail)
        (tableValue< $left $right)))
 

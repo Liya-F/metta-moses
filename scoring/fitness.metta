@@ -95,9 +95,10 @@
        (let $t (mkNodeTemplate $op $cvs)
          (map evalRow $t (transposeCols $cvs)))))
 
-;; Wrapped (sub)expression -> boolean column. Nodes AND label leaves are
-;; memoized, so a label's table walk happens once per run. The map-atom over
-;; the destructured children is the engine's only tree recursion.
+;; Wrapped (sub)expression -> value column. Nodes and label leaves are
+;; memoized, so a label's table walk happens once per run.
+;; Conditional branches run per row; ordinary nodes combine child columns.
+;; tableRowOperator entries mark operators that must control child evaluation.
 ;; (: evalSubtree (-> Expression (ITable $a) Number (List Bool)))
 (= (evalSubtree $exp $itable $n)
    (if (== (get-metatype $exp) Grounded)
@@ -109,10 +110,35 @@
              (let* (
                      ($col (if (== (get-metatype $exp) Expression)
                               ;; every node is uniformly ($op ($c1 .. $ck))
-                              (let* ((($op $children) $exp)
-                                     ($cvs (map-atom $children $child (evalSubtree $child $itable $n))))
-                                (combineNode $op $cvs $n))
+                              (let ($op $children) $exp
+                                (case $op
+                                  ((mkEnum (List.repeat $n $exp))
+                                   ($other
+                                     (if (!= (collapse (match &self (tableRowOperator $op) True)) ())
+                                         (map-atom (genList 0 (- $n 1)) $row
+                                           (evalTableRow $exp $itable $row))
+                                         (let $cvs (map-atom $children $child (evalSubtree $child $itable $n))
+                                           (combineNode $op $cvs $n)))))))
                               (varColumn $itable $exp)))
                     ($_   (add-atom &subtreeCache (subtree $exp $col))))
                $col)
              (car-atom $hit)))))
+
+;; A conditional selects a branch separately for each table row.
+;; This walk avoids caching a partial column in the full-column subtree cache.
+(= (evalTableRow $exp $itable $row)
+   (case $exp
+     (((mkEnum $label) $exp)
+      ($other
+        (if (== (get-metatype $exp) Grounded)
+            $exp
+            (if (== (get-metatype $exp) Expression)
+                (let ($op $children) $exp
+                  (if (!= (collapse (match &self (tableRowOperator $op) True)) ())
+                      ;; Operator heads are live; quote keeps the children unevaluated.
+                      (let $call (quote ($op $children $itable $row))
+                        (reduce $call))
+                      (let* (($values (map-atom $children $child (evalTableRow $child $itable $row)))
+                             ($template (mkNodeTemplate $op $children)))
+                        (evalRow $template $values))))
+                (index-atom (varColumn $itable $exp) $row)))))))
