@@ -58,12 +58,12 @@ def _cell_type(cell, row_num, col_name):
         )
     if value.lower() in BOOLEAN_LITERALS:
         return "boolean"
+    if value[0].isalpha():
+        return "enum"
     try:
         float(value)
         return "continuous"
     except ValueError:
-        if value[0].isalpha():
-            return "enum"
         raise ValueError(
             "row {row}, column {col!r}: cannot infer the type of {cell!r}".format(
                 row=row_num, col=col_name, cell=cell
